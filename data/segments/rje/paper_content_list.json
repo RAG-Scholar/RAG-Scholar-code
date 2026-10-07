@@ -1,0 +1,3020 @@
+[
+  {
+    "type": "text",
+    "text": "RJE: A Retrieval-Judgment-Exploration Framework for Efficient Knowledge Graph Question Answering with LLMs",
+    "text_level": 1,
+    "bbox": [
+      157,
+      77,
+      840,
+      118
+    ],
+    "page_idx": 0
+  },
+  {
+    "type": "text",
+    "text": "Can Lin1\\*, Zhengwang Jiang1\\*, Ling Zheng1, Qi Zhao1, Yuhang Zhang1,2, Qi Song1,3†, Wangqiu Zhou4",
+    "bbox": [
+      260,
+      124,
+      742,
+      159
+    ],
+    "page_idx": 0
+  },
+  {
+    "type": "text",
+    "text": "1University of Science and Technology of China",
+    "bbox": [
+      300,
+      159,
+      699,
+      175
+    ],
+    "page_idx": 0
+  },
+  {
+    "type": "text",
+    "text": "3Deqing Alpha Innovation Institute, Huzhou, China 4Hefei University of Technology",
+    "bbox": [
+      289,
+      191,
+      710,
+      225
+    ],
+    "page_idx": 0
+  },
+  {
+    "type": "text",
+    "text": "{can.lin, jzw02, lingzheng, zq2021, yhzhang}@mail.ustc.edu.cn qisong09@ustc.edu.cn, rafazwq@hfut.edu.cn",
+    "bbox": [
+      302,
+      227,
+      697,
+      259
+    ],
+    "page_idx": 0
+  },
+  {
+    "type": "text",
+    "text": "Abstract",
+    "text_level": 2,
+    "bbox": [
+      262,
+      260,
+      342,
+      275
+    ],
+    "page_idx": 0
+  },
+  {
+    "type": "text",
+    "text": "Knowledge graph question answering (KGQA) aims to answer natural language questions using knowledge graphs. Recent research leverages large language models (LLMs) to enhance KGQA reasoning, but faces limitations: retrieval-based methods are constrained by the quality of retrieved information, while agentbased methods rely heavily on proprietary LLMs. To address these limitations, we propose Retrieval-Judgment-Exploration (RJE), a framework that retrieves refined reasoning paths, evaluates their sufficiency, and conditionally explores additional evidence. Moreover, RJE introduces specialized auxiliary modules enabling small-sized LLMs to perform effectively: Reasoning Path Ranking, Question Decomposition, and Retriever-assisted Exploration. Experiments show that our approach with proprietary LLMs (such as GPT-4o-mini) outperforms existing baselines while enabling small open-source LLMs (such as 3B and 8B parameters) to achieve competitive results without fine-tuning LLMs. Additionally, RJE substantially reduces the number of LLM calls and token usage compared to agent-based methods, yielding significant efficiency improvements.1",
+    "bbox": [
+      141,
+      288,
+      462,
+      663
+    ],
+    "page_idx": 0
+  },
+  {
+    "type": "text",
+    "text": "1 Introduction",
+    "text_level": 2,
+    "bbox": [
+      115,
+      674,
+      260,
+      690
+    ],
+    "page_idx": 0
+  },
+  {
+    "type": "text",
+    "text": "Knowledge graph question answering (KGQA) aims to find answer entities from knowledge graphs (KGs) in response to natural language questions (Jiang et al., 2023c). With the development of open domain knowledge graphs, such as Freebase (Bollacker et al., 2008) and Wikidata (Pellissier Tanon et al., 2016), KGQA has become an important research topic. Although multi-hop KGQA has been studied (Zhang et al., 2022; Ji et al., 2024; Mavromatis and Karypis, 2024), finding complex multi-hop reasoning edges to infer correct answers remains a challenge.",
+    "bbox": [
+      112,
+      701,
+      490,
+      863
+    ],
+    "page_idx": 0
+  },
+  {
+    "type": "image",
+    "img_path": "images/e103a241fbc8516445bc3a8cf6eab9545c09c05fcdd56d95097b62b48d5d5a64.jpg",
+    "image_caption": [
+      "Figure 1: A comparison of three types of methods: retrieval-based methods, agent-based methods, and our proposed RJE that combines precise retrieval with conditional exploration."
+    ],
+    "image_footnote": [],
+    "bbox": [
+      514,
+      258,
+      880,
+      430
+    ],
+    "page_idx": 0
+  },
+  {
+    "type": "text",
+    "text": "",
+    "bbox": [
+      509,
+      530,
+      884,
+      562
+    ],
+    "page_idx": 0
+  },
+  {
+    "type": "text",
+    "text": "Concurrently, large language models (LLMs) have demonstrated remarkable performance across various natural language processing (NLP) tasks (Huang and Chang, 2023; Grattafiori et al., 2024). This convergence has stimulated growing research into methodologies that leverage LLMs to enhance KGQA systems (Gao et al., 2023; Zhang et al., 2025). One straightforward approach is to finetune LLMs (Luo et al., 2024b; Jiang et al., 2024), which incurs significant costs and risks catastrophic forgetting (Luo et al., 2023). As illustrated in Figure 1, an alternative class of methods does not require parameter modification of LLMs. They can be categorized as two types:",
+    "bbox": [
+      507,
+      564,
+      887,
+      791
+    ],
+    "page_idx": 0
+  },
+  {
+    "type": "text",
+    "text": "1) Retrieval-based methods incorporate external retrieval mechanisms to extract relevant KG evidence, which is then integrated into textual prompts for LLMs to generate answers grounded in the retrieved knowledge (He et al., 2024; Huang and Zeng, 2024; Li et al., 2025). However, Constraints of retrieval information limit the effectiveness of these methods. Retrieved information often struggles to simultaneously accommodate sufficiency and relevance. Insufficient evidence prevents correct inference, while excessive information introduces noise that can derail the reasoning process (Huang and Zeng, 2024).",
+    "bbox": [
+      507,
+      794,
+      887,
+      922
+    ],
+    "page_idx": 0
+  },
+  {
+    "type": "aside_text",
+    "text": "arXiv:2510.01257v1 [cs.CL] 25 Sep 2025",
+    "bbox": [
+      23,
+      291,
+      60,
+      706
+    ],
+    "page_idx": 0
+  },
+  {
+    "type": "page_footnote",
+    "text": "\\* Equal contribution.",
+    "bbox": [
+      136,
+      870,
+      268,
+      883
+    ],
+    "page_idx": 0
+  },
+  {
+    "type": "page_footnote",
+    "text": "† Corresponding author.",
+    "bbox": [
+      136,
+      883,
+      287,
+      896
+    ],
+    "page_idx": 0
+  },
+  {
+    "type": "page_footnote",
+    "text": "1Code and data are available at: https://github.com/ Olgird/RJE",
+    "bbox": [
+      112,
+      895,
+      489,
+      921
+    ],
+    "page_idx": 0
+  },
+  {
+    "type": "text",
+    "text": "",
+    "bbox": [
+      112,
+      85,
+      489,
+      165
+    ],
+    "page_idx": 1
+  },
+  {
+    "type": "text",
+    "text": "2) Agent-based methods employ LLMs as agents that deliberately navigate the KG. Starting with question topic entities, LLMs systematically select candidate relations and entities, and then evaluate them in an iterative process until they reach an appropriate answer (Jiang et al., 2023a; Sun et al., 2024; Chen et al., 2024). These methods depend heavily on proprietary LLMs. They typically operate without initially provided external information, forcing LLMs to handle multi-step exploration independently. Additionally, exploration complexity increases substantially when reasoning over multiple topic entities and navigating extensive entities and relations in KGs. As a result, practical success has predominantly relied on proprietary LLMs like GPT-4, while smaller open-source alternatives demonstrate significantly lower performance (Li et al., 2024).",
+    "bbox": [
+      112,
+      165,
+      490,
+      455
+    ],
+    "page_idx": 1
+  },
+  {
+    "type": "text",
+    "text": "Above limitations led to a natural question: can we achieve more accurate reasoning with lower cost? We answer this question by proposing a three-stage Retrieval-Judgment-Exploration (RJE) framework. As shown in Figure 1, the RJE framework strategically synergizes KG retrieval with reasoning capabilities of LLMs by first retrieving refined reasoning paths from the KG, then employing LLMs to judge information sufficiency and finally executing targeted exploration as needed.",
+    "bbox": [
+      112,
+      455,
+      490,
+      617
+    ],
+    "page_idx": 1
+  },
+  {
+    "type": "text",
+    "text": "Retrieval: the retrieval stage of RJE prioritizes relevance over sufficiency of retrieved information. The retriever first extracts numerous reasoning paths from the KG based on relevance between the question and relations, where each reasoning path starts from a topic entity and consists of alternating relations and entities. To reduce noise and preserve the relevance, we introduce a lightweight Reasoning Path Ranking module to further sort reasoning paths based on relevance scores, and only the top-K reasoning paths are retained.",
+    "bbox": [
+      112,
+      617,
+      490,
+      794
+    ],
+    "page_idx": 1
+  },
+  {
+    "type": "text",
+    "text": "Judgment: an LLM serves as a judge to evaluate whether the retained reasoning paths provide sufficient evidence to answer the question. If indeed sufficient, the LLM directly formulates a response; otherwise, an exploration phase will be executed to fetch the required information.",
+    "bbox": [
+      112,
+      794,
+      489,
+      890
+    ],
+    "page_idx": 1
+  },
+  {
+    "type": "text",
+    "text": "Exploration: unlike prior agent-based methods (Sun et al., 2024; Chen et al., 2024), the exploration stage of RJE is dedicated to completing missing evidence and simplifying exploration. When evidence is insufficient, the LLM acts as an exploration agent that first executes Question Decomposition which breaks down a complex question into simpler subquestions based on topic entities to focus on specific reasoning paths. RJE then utilizes retrieved reasoning paths as prior knowledge, allowing the LLM to initiate exploration from entities at knowledge gaps rather than topic entities, thereby reducing exploration steps. Subsequently, it iteratively conducts Retriever-assisted Exploration, where the retriever pre-filters candidate relations to constrain the search space before the LLM conducts targeted relation and entity exploration to complete the missing evidence chain.",
+    "bbox": [
+      112,
+      890,
+      489,
+      922
+    ],
+    "page_idx": 1
+  },
+  {
+    "type": "text",
+    "text": "",
+    "bbox": [
+      507,
+      85,
+      887,
+      342
+    ],
+    "page_idx": 1
+  },
+  {
+    "type": "text",
+    "text": "Our contributions can be summarized as follows:",
+    "bbox": [
+      527,
+      343,
+      885,
+      359
+    ],
+    "page_idx": 1
+  },
+  {
+    "type": "text",
+    "text": "• We introduce a novel framework called RJE that integrates precise retrieval, sufficiency judgment, and conditional exploration for KGQA. This framework simultaneously enhances reasoning capabilities and reduces computational demands.",
+    "bbox": [
+      531,
+      372,
+      885,
+      469
+    ],
+    "page_idx": 1
+  },
+  {
+    "type": "text",
+    "text": "• We introduce three key auxiliary modules: Reasoning Path Ranking, Question Decomposition, and Retriever-assisted Exploration. These modules reduce the reasoning burden on LLMs, enabling small-sized LLMs to achieve performance comparable to prior work using proprietary models.",
+    "bbox": [
+      531,
+      481,
+      887,
+      595
+    ],
+    "page_idx": 1
+  },
+  {
+    "type": "text",
+    "text": "• We conduct comprehensive experiments across standard KGQA benchmarks, demonstrating that RJE surpasses existing approaches in both accuracy and efficiency when using proprietary LLMs. Notably, with small open-source LLMs (3B and 8B parameters), RJE outperforms the previous state-of-the-art method PoG by 41.5% and 27.9% on the CWQ dataset under the same model sizes.",
+    "bbox": [
+      531,
+      607,
+      887,
+      753
+    ],
+    "page_idx": 1
+  },
+  {
+    "type": "text",
+    "text": "2 Related Work",
+    "text_level": 2,
+    "bbox": [
+      509,
+      765,
+      667,
+      782
+    ],
+    "page_idx": 1
+  },
+  {
+    "type": "text",
+    "text": "The task of KGQA focuses on answering questions by leveraging information from KGs. We categorize existing approaches as follows.",
+    "bbox": [
+      507,
+      793,
+      885,
+      841
+    ],
+    "page_idx": 1
+  },
+  {
+    "type": "text",
+    "text": "Semantic parsing methods convert natural language questions into structured queries (e.g., SPARQL) or equivalent forms for execution (Cao et al., 2022; Hu et al., 2022; Zhang et al., 2023; Luo et al., 2024a). Despite their precision, these approaches often require costly logical form annotations and remain vulnerable to execution failures stemming from syntactic or semantic errors.",
+    "bbox": [
+      507,
+      843,
+      887,
+      923
+    ],
+    "page_idx": 1
+  },
+  {
+    "type": "text",
+    "text": "",
+    "bbox": [
+      112,
+      85,
+      489,
+      133
+    ],
+    "page_idx": 2
+  },
+  {
+    "type": "text",
+    "text": "Retrieval-based methods typically comprise a retrieval module and a reasoning module. Early approaches (Zhang et al., 2022; Jiang et al., 2023c; Baek et al., 2023a; Li et al., 2023; Jiang et al., 2023b; Ding et al., 2024) employed pre-trained models for retrieval paired with lightweight reasoning components. More recent work applies retrieval-augmented generation (RAG) with LLMs, utilizing retrieved subgraphs as contextual prompts (Baek et al., 2023b; He et al., 2024; Zhao et al., 2024; Mavromatis and Karypis, 2024; Huang and Zeng, 2024; Li et al., 2025). However, these methods struggle to balance knowledge sufficiency and relevance, leading to either incomplete evidence for inference or noise that disrupts reasoning.",
+    "bbox": [
+      112,
+      134,
+      489,
+      376
+    ],
+    "page_idx": 2
+  },
+  {
+    "type": "text",
+    "text": "Agent-based methods extend beyond standard RAG implementations. Some studies explore finetuning LLMs to enhance their KG reasoning capabilities, such as RoG (Luo et al., 2024b) and KG-Agent (Jiang et al., 2024), though this strategy incurs significant computational costs and increases the risk of catastrophic forgetting (Luo et al., 2023). Alternatively, iterative prompting methods (Jiang et al., 2023a; Cheng et al., 2024; Markowitz et al., 2024; Sun et al., 2024; Chen et al., 2024; Wang et al., 2025) leverage LLMs as agents to progressively retrieve relevant knowledge, with frameworks like ToG (Sun et al., 2024) and PoG (Chen et al., 2024) incorporating advanced strategies such as beam search, memory mechanisms, and reflection capabilities. However, these approaches often introduce additional system complexity, and small-sized LLMs continue to exhibit significant performance limitations.",
+    "bbox": [
+      110,
+      378,
+      490,
+      684
+    ],
+    "page_idx": 2
+  },
+  {
+    "type": "text",
+    "text": "3 Preliminary",
+    "text_level": 2,
+    "bbox": [
+      114,
+      699,
+      255,
+      717
+    ],
+    "page_idx": 2
+  },
+  {
+    "type": "text",
+    "text": "Knowledge Graph (KG) is a structured semantic knowledge base, denoted as G = (E, R), where E and R represent the set of entities and relations respectively. A triple τ = (e, r, e′) describes a fact with e, e′ ∈ E and r ∈ R.",
+    "bbox": [
+      112,
+      727,
+      489,
+      808
+    ],
+    "page_idx": 2
+  },
+  {
+    "type": "text",
+    "text": "Knowledge Graph Question Answering (KGQA) aims to answer natural language questions using KGs. Formally, given a natural language question q and a knowledge graph G, the task of KGQA is to identify the corresponding answer entity subset Aq ⊆ E that satisfies the question by leveraging the structural information in G.",
+    "bbox": [
+      110,
+      809,
+      490,
+      923
+    ],
+    "page_idx": 2
+  },
+  {
+    "type": "text",
+    "text": "Topic Entities are the main entities mentioned in a question q that serve as starting points for answer retrieval. Following prior work (Sun et al., 2024; Chen et al., 2024; Huang and Zeng, 2024), we assume that the set of topic entities T has been identified from the question and successfully linked to nodes in KGs.",
+    "bbox": [
+      507,
+      84,
+      885,
+      197
+    ],
+    "page_idx": 2
+  },
+  {
+    "type": "text",
+    "text": "Relation Path is defined as a sequence of relations starting from a topic entity et. It is denoted as pr = (et, r1, r2, . . . , rh), where h represents the length of the relation path.",
+    "bbox": [
+      509,
+      198,
+      885,
+      262
+    ],
+    "page_idx": 2
+  },
+  {
+    "type": "text",
+    "text": "Reasoning Path refers to a complete path of alternating entities and relations, derived from a given relation path. It is formally represented as pe = (et, r1, e1, r2, . . . , rh, eh), where each entity ei−1 is connected to the next entity ei via relation ri. Note that a single relation path may derive multiple reasoning paths based on the entity connections within the KG. For instance, p′e = (et, r1, e′1, r2, . . . , rh, e′h) constitutes an alternative reasoning path from the same relation path.",
+    "bbox": [
+      507,
+      262,
+      885,
+      425
+    ],
+    "page_idx": 2
+  },
+  {
+    "type": "text",
+    "text": "4 Methodology",
+    "text_level": 2,
+    "bbox": [
+      509,
+      438,
+      660,
+      455
+    ],
+    "page_idx": 2
+  },
+  {
+    "type": "text",
+    "text": "This section provides a detailed description of each stage in the RJE framework and its auxiliary modules. As illustrated in Figure 2, RJE consists of three stages: Retrieval, Judgment, and Exploration. Retrieval stage: the relation path retriever first identifies relevant relation paths from the KG, which are then refined by the reasoning path ranking module to obtain the top-K reasoning paths. Judgment stage: the top-K reasoning paths are prompted to LLM, which evaluates whether the available evidence is sufficient to answer the question. If deemed sufficient, the LLM proceeds to generate an answer. Exploration stage: when the current paths information is insufficient, further exploration is required. Firstly, the LLM performs question decomposition to guide further exploration. Then through an iterative process of exploration, the LLM gathers additional evidence until it determines sufficient information has been accumulated to generate the final answer.",
+    "bbox": [
+      507,
+      464,
+      887,
+      788
+    ],
+    "page_idx": 2
+  },
+  {
+    "type": "text",
+    "text": "4.1 Retrieval Stage",
+    "text_level": 2,
+    "bbox": [
+      509,
+      800,
+      677,
+      815
+    ],
+    "page_idx": 2
+  },
+  {
+    "type": "text",
+    "text": "4.1.1 Relation Path Retrieval",
+    "text_level": 2,
+    "bbox": [
+      509,
+      821,
+      756,
+      837
+    ],
+    "page_idx": 2
+  },
+  {
+    "type": "text",
+    "text": "In order to preliminarily extract information relevant to the question from the KG, we implement the relation path retrieval as the first step of retrieval stage. Following the approach proposed by Zhang et al. (2022) and Huang and Zeng (2024), we finetune a pre-trained language model as relation path retriever based on the question q, topic entities T , and answers A. This enables the model to capture the semantic similarity between the question and relevant relations. During retrieval, the model concatenates the question with the topic entity, employs beam search iteratively to assess semantic similarity between the question and neighboring candidate relations, and produces a set of relation paths Pr = {pr0 , pr1 , ..., pr|Pr|−1 }, each with a corresponding relevance score, where |Pr| is the number of selected relation paths.",
+    "bbox": [
+      507,
+      841,
+      887,
+      923
+    ],
+    "page_idx": 2
+  },
+  {
+    "type": "image",
+    "img_path": "images/af13cb99e6f1f7ad17130e99220d70bb725f405e6e3233ec18b563ef6ffb151c.jpg",
+    "image_caption": [
+      "Figure 2: The framework overview of RJE, which flexibly adjusts its strategy based on the sufficiency of path evidence to minimize resource consumption while ensuring answer correctness."
+    ],
+    "image_footnote": [],
+    "bbox": [
+      115,
+      84,
+      875,
+      431
+    ],
+    "page_idx": 3
+  },
+  {
+    "type": "text",
+    "text": "",
+    "bbox": [
+      110,
+      497,
+      490,
+      690
+    ],
+    "page_idx": 3
+  },
+  {
+    "type": "text",
+    "text": "4.1.2 Reasoning Path Ranking",
+    "text_level": 2,
+    "bbox": [
+      112,
+      713,
+      371,
+      730
+    ],
+    "page_idx": 3
+  },
+  {
+    "type": "text",
+    "text": "Depending on entity connections in the KG, a set of reasoning paths Pe = {pe0 , pe1 , ..., pe|Pe|−1 } is derived from Pr. To prevent overwhelming downstream LLMs with excessive reasoning paths, we introduce a reasoning path ranking module that employs a relatively small reasoning path ranker based on a pre-trained language model (PLM) to prioritize relevant reasoning paths.",
+    "bbox": [
+      110,
+      740,
+      489,
+      871
+    ],
+    "page_idx": 3
+  },
+  {
+    "type": "text",
+    "text": "For a specific reasoning path represented as pei = (et, r1, e1, r2, e2, ..., rh, eh), the ranker constructs an input sequence by concatenating the ques-",
+    "bbox": [
+      112,
+      875,
+      489,
+      923
+    ],
+    "page_idx": 3
+  },
+  {
+    "type": "text",
+    "text": "tion and the path:",
+    "bbox": [
+      509,
+      497,
+      643,
+      512
+    ],
+    "page_idx": 3
+  },
+  {
+    "type": "equation",
+    "img_path": "images/fec50f728bbf80324e429766a44f99745dc28e352e1ec2d02afd90a2cc7fbbe1.jpg",
+    "text": "$$\n\\tag{1}\n$$",
+    "text_format": "latex",
+    "bbox": [
+      519,
+      526,
+      847,
+      543
+    ],
+    "page_idx": 3
+  },
+  {
+    "type": "text",
+    "text": "Here, [SEP] is the separator token used by the PLM, and the symbol “→” indicates transition within the path. The sequence qi is fed into the PLM to obtain a relevance score:",
+    "bbox": [
+      507,
+      556,
+      884,
+      621
+    ],
+    "page_idx": 3
+  },
+  {
+    "type": "equation",
+    "img_path": "images/af0877f3e49197b75eb322a7bdea9f3e8ea9f2d18387cdbc8a715d8c9bb26f57.jpg",
+    "text": "$$\n\\tag{2}\n$$",
+    "text_format": "latex",
+    "bbox": [
+      626,
+      638,
+      764,
+      656
+    ],
+    "page_idx": 3
+  },
+  {
+    "type": "text",
+    "text": "where E(·) denotes the embedding obtained from the PLM by extracting the [CLS] token representation, and MLP is a multi-layer perceptron applied on top of the embedding. To ensure the relevance of extracted information and suppress irrelevant noise, we only select the top-K reasoning paths based on relevance scores. As shown in Figure 2, for the question Q2 “What team did Payton Manning’s father play for that has a mascot named Viktor the Viking?”, only a few paths most relevant to the topic entities “Peyton Manning” and “Viktor the Viking” are selected.",
+    "bbox": [
+      507,
+      664,
+      885,
+      858
+    ],
+    "page_idx": 3
+  },
+  {
+    "type": "text",
+    "text": "The ranker is trained with weak supervision, requiring only the question q and the corresponding answer set A. For a reasoning path pei, if there exists an answer a ∈ A along that path, it is labeled as a positive sample. Otherwise, it is treated as a negative sample. The training objective adopts the margin ranking loss, defined as:",
+    "bbox": [
+      507,
+      858,
+      887,
+      922
+    ],
+    "page_idx": 3
+  },
+  {
+    "type": "text",
+    "text": "",
+    "bbox": [
+      112,
+      85,
+      487,
+      134
+    ],
+    "page_idx": 4
+  },
+  {
+    "type": "equation",
+    "img_path": "images/69813690ebbab6f2d06f97267b5b40b95dbf488ea9b6fbe652bcf60efb6d9c2d.jpg",
+    "text": "$$\n\\tag{3}\n$$",
+    "text_format": "latex",
+    "bbox": [
+      166,
+      152,
+      433,
+      170
+    ],
+    "page_idx": 4
+  },
+  {
+    "type": "text",
+    "text": "where sneg and spos denote the scores for negative and positive samples, respectively, and margin is a hyperparameter enforcing a minimum separation between them.",
+    "bbox": [
+      112,
+      187,
+      487,
+      250
+    ],
+    "page_idx": 4
+  },
+  {
+    "type": "text",
+    "text": "4.2 Judgment Stage",
+    "text_level": 2,
+    "bbox": [
+      114,
+      268,
+      287,
+      285
+    ],
+    "page_idx": 4
+  },
+  {
+    "type": "text",
+    "text": "After extracting the top-K reasoning paths, we employ an LLM-based judgment stage to assess information sufficiency. RJE feeds the paths into the LLM, which then evaluates whether these paths contain sufficient information to answer the question. If deemed sufficient, the LLM proceeds to generate answer. Otherwise, RJE identifies the need for further exploration. As shown in Figure 2, for the question Q1 “What major trading partner of China is the home of Monteith’s Lager beer?”, RJE successfully infers the correct answer by judging that the paths information is sufficient. In contrast, for the question Q2 “What team did Payton Manning’s father play for that has a mascot named Viktor the Viking?”, RJE identifies the insufficiency of the available information and proceeds with further exploration. These two examples demonstrate the flexibility and adaptability of the RJE framework. The prompt is provided in Appendix J.1.",
+    "bbox": [
+      112,
+      293,
+      490,
+      601
+    ],
+    "page_idx": 4
+  },
+  {
+    "type": "text",
+    "text": "4.3 Exploration Stage",
+    "text_level": 2,
+    "bbox": [
+      114,
+      617,
+      304,
+      633
+    ],
+    "page_idx": 4
+  },
+  {
+    "type": "text",
+    "text": "4.3.1 Question Decomposition",
+    "text_level": 2,
+    "bbox": [
+      114,
+      642,
+      366,
+      657
+    ],
+    "page_idx": 4
+  },
+  {
+    "type": "text",
+    "text": "Given a question q and its corresponding set of topic entities T = {et1 , et2 , . . . , etn }, the reasoning paths associated with different topic entities need to be jointly considered to infer the final answer. However, during the exploration phase, these paths are relatively independent of each other. To this end, RJE prompts the LLM to perform question decomposition, leveraging both the original question and each topic entity to generate a set of focused sub-questions. Specifically, for each topic entity eti, a corresponding sub-question qti is generated, which we define as a topic question. This strategy encourages the LLM to concentrate on reasoning paths specific to each topic entity, thereby enhancing both the efficiency and accuracy of reasoning. The prompt is provided in Appendix J.2.",
+    "bbox": [
+      112,
+      664,
+      490,
+      923
+    ],
+    "page_idx": 4
+  },
+  {
+    "type": "text",
+    "text": "4.3.2 Path Exploration",
+    "text_level": 2,
+    "bbox": [
+      509,
+      84,
+      707,
+      99
+    ],
+    "page_idx": 4
+  },
+  {
+    "type": "text",
+    "text": "To fetch the required information, RJE conducts further exploration over the KG. Initially, based on the question decomposition, we obtain a set of topic questions Q = {qt1 , qt2 , . . . , qtn }, where n is the number of topic entities. The reasoning path ranker extracts the top-K reasoning paths, whichare categorized as P0 = {P 0t1 , P 0t2 , . . . , P 0tn }. Here, p0 P 0ti = {p0ti,1, p0ti,2, . . . } represents the set of paths +. Ptn originating from the topic entity et . We initialize the entity set E0 as the collection of all entities that appear in the paths of P0. In the D-th round of exploration, assuming that the entity set ED−1 and the paths PD−1 have already been obtained from the previous round, we perform further path exploration based on ED−1 and PD−1 to acquire additional useful information from the KG.",
+    "bbox": [
+      507,
+      104,
+      885,
+      363
+    ],
+    "page_idx": 4
+  },
+  {
+    "type": "text",
+    "text": "Exploration Entities Selection. For different topic entities, the number of hops required to reach the answer entity can vary significantly. As shown in Figure 2, theoretically, for question Q2, the answer entity “Minnesota Vikings” can be reached in one hop from the topic entity “Viktor the Viking”, whereas it takes three hops from “Peyton Manning”. To ensure more efficient exploration, we prompt the LLM using the paths of the previous round PD−1, the original question q, the set of topic questions Q, and the set of topic entities T to select a subset of entities EDf . For Q2, RJE selects the entity “Archie Manning” in the first round and the entities “m.0hpq5r4” and “m.0hpq5rc” in the second round. This approach, combined with the path information, identifies which paths require further exploration to answer their corresponding topic questions, thereby avoiding redundant exploration on information-sufficient paths. The prompt is provided in Appendix J.3.",
+    "bbox": [
+      507,
+      372,
+      887,
+      696
+    ],
+    "page_idx": 4
+  },
+  {
+    "type": "text",
+    "text": "Retriever-assisted Relation Exploration. Relation exploration aims to identify all relations relevant to answering the question. Let EDf {eDf,1, eDf,2, . . . , eDf,m} denote the set of exploration entities selected in the D-th round. Each entity eDf,i corresponds to a topic question qtc. We use pre-defined SPARQL queries to retrieve all relations connected to e f,i, D obtaining a candidate relation set RDf,i. For more reliable LLM reasoning, we employ the relation path retriever to filter the top-N most relevant relations from RDf,i, resulting in a refined set R s,i. We then prompt theLLM with the topic question qtc , the entity eDf,i, and the relation set RDs,i to select a subset of the most useful relations, denoted as RDi . By performing this procedure for all entities in EDf , we derive the final set of explored relations in the D-th round RD = {RD1 , RD2 , . . . , RDm}. The prompt and SPARQL queries are provided in Appendix J.4 and Appendix K.1, respectively.",
+    "bbox": [
+      507,
+      705,
+      887,
+      926
+    ],
+    "page_idx": 4
+  },
+  {
+    "type": "text",
+    "text": "",
+    "bbox": [
+      110,
+      84,
+      489,
+      200
+    ],
+    "page_idx": 5
+  },
+  {
+    "type": "text",
+    "text": "Entity Exploration. Entity exploration aims to further infer useful entities to help answer the question. Given the entity set ED and the corresponding relation set RD obtained in the D-th round, we execute pre-defined SPARQL queries to retrieve the tail entities connected to each entity-relation pair. Following the approach of Chen et al. (2024), we apply a lightweight, train-free BERT to remove semantically irrelevant entities, resulting in a filtered entity set EDs = {EDs,1, EDs,2 , . s,k Each E s,i is a set of tail entities derived from a spe-cific pair ⟨eDf,j , r⟩, where eDf,j ∈ EDf and r ∈ RDj . Let qtc denote the topic question associated with eDf,j . The LLM then performs entity selection based on the topic question qtc , the entity e f,j , therelation r, and the candidate tail entity set EDs,i able for answering the question, denoted as EDi . After performing entity selection for all relevant entities and relations, we obtain the final entity set ED = {ED1 , ED2 , . . . , EDk }. The prompt and SPARQL queries are provided in Appendix J.5 and Appendix K.2, respectively.",
+    "bbox": [
+      112,
+      208,
+      490,
+      590
+    ],
+    "page_idx": 5
+  },
+  {
+    "type": "text",
+    "text": "4.3.3 Answer Generation",
+    "text_level": 2,
+    "bbox": [
+      114,
+      596,
+      329,
+      612
+    ],
+    "page_idx": 5
+  },
+  {
+    "type": "text",
+    "text": "After performing relation and entity exploration in the D-th round, we use the relation set RD and the entity set ED to update and extend the paths from the previous round PD−1 to obtain PD {P Dt1 , P Dt2 , . . . , P Dtn }. Given the original question q, the set of topic questions Q = {qt1 , qt2 , . . . , qtn }, and the updated paths PD, we prompt the LLM to reason over each path P Dt to answer the corresponding topic question qti. Then, the LLM integrates the answers to the topic questions to infer the answer to the original question q. During this process, if the LLM determines that the current paths provide sufficient information to answer the question, the iteration terminates and the final answer is generated. Otherwise, the LLM proceeds to perform a new round of path exploration. To avoid endless exploration, we define a maximum number of exploration rounds Dmax. If the LLM is still unable to generate an answer after reaching Dmax, it will produce an answer based on the accumulated paths and its internal knowledge. The prompt is provided in Appendix J.6.",
+    "bbox": [
+      110,
+      617,
+      490,
+      923
+    ],
+    "page_idx": 5
+  },
+  {
+    "type": "text",
+    "text": "",
+    "bbox": [
+      507,
+      84,
+      884,
+      134
+    ],
+    "page_idx": 5
+  },
+  {
+    "type": "text",
+    "text": "5 Experiments",
+    "text_level": 2,
+    "bbox": [
+      509,
+      143,
+      657,
+      160
+    ],
+    "page_idx": 5
+  },
+  {
+    "type": "text",
+    "text": "In this section, we present our experimental design, empirical results, and comprehensive analyses. Our experiments address the following research questions (RQs): RQ1: Does RJE achieve superior performance compared to state-of-the-art approaches on KGQA tasks? RQ2: Can small-sized, opensource LLMs deliver competitive results within the RJE framework? RQ3: Are the core stages and auxiliary modules of RJE effective in contributing to overall system performance? RQ4: Can RJE reduce computational overhead and improve efficiency during reasoning?",
+    "bbox": [
+      507,
+      168,
+      887,
+      363
+    ],
+    "page_idx": 5
+  },
+  {
+    "type": "text",
+    "text": "5.1 Datasets & Evaluation Metrics",
+    "text_level": 2,
+    "bbox": [
+      509,
+      372,
+      798,
+      387
+    ],
+    "page_idx": 5
+  },
+  {
+    "type": "text",
+    "text": "To evaluate our proposed KGQA approach, we conduct extensive experiments on two widely used benchmark datasets that rely on the external knowledge graph Freebase (Bollacker et al., 2008): WebQuestionsSP (WebQSP) (Yih et al., 2016) and Complex WebQuestions (CWQ) (Talmor and Berant, 2018). Detailed statistics of the datasets are provided in Appendix A. Following prior research (Sun et al., 2024; Chen et al., 2024; Li et al., 2025), we adopt Hits@1 (exact match accuracy) as our primary evaluation metric.",
+    "bbox": [
+      507,
+      392,
+      887,
+      570
+    ],
+    "page_idx": 5
+  },
+  {
+    "type": "text",
+    "text": "5.2 Selected Baselines",
+    "text_level": 2,
+    "bbox": [
+      509,
+      579,
+      700,
+      594
+    ],
+    "page_idx": 5
+  },
+  {
+    "type": "text",
+    "text": "For a comprehensive comparison with various methods, we selected five categories of baselines as follows: (1) LLM-only methods: standard prompting (IO prompt) (Brown et al., 2020), Chain-of-Thought prompting (CoT) (Wei et al., 2022), and Self-Consistency (SC) (Wang et al., 2023). (2) Retrieval-Reasoning Methods: SR (Zhang et al., 2022), UniKGQA (Jiang et al., 2023c), ReasoningLM (Jiang et al., 2023b) and EPR (Ding et al., 2024). (3) Retrieval-Augmented Generation Methods: RD-P (Huang and Zeng, 2024), KG-CoT (Zhao et al., 2024) and SubgraphRAG (Li et al., 2025). (4) Fine-tuned Agent-based Methods: RoG (Luo et al., 2024b), KG-Agent (Jiang et al., 2024) and GCR (Luo et al., 2024c). (5) Prompting Agentbased Methods: StructGPT (Jiang et al., 2023a), ToG (Sun et al., 2024), Interactive-KBQA (Xiong et al., 2024), ReKnoS (Wang et al., 2025) and PoG (Chen et al., 2024). The description of the baselines can be found in Appendix B.",
+    "bbox": [
+      507,
+      600,
+      887,
+      923
+    ],
+    "page_idx": 5
+  },
+  {
+    "type": "table",
+    "img_path": "images/5b3ff8182a7c72df85fdb2ce8166ee46d3aeeb3d7737830b01c477bde3d61ab9.jpg",
+    "table_caption": [
+      "Table 1: Results of different methods and models on two datasets. The best results are highlighted in bold."
+    ],
+    "table_footnote": [],
+    "bbox": [
+      119,
+      82,
+      484,
+      448
+    ],
+    "page_idx": 6
+  },
+  {
+    "type": "text",
+    "text": "5.3 Implementation Details",
+    "text_level": 2,
+    "bbox": [
+      114,
+      512,
+      346,
+      527
+    ],
+    "page_idx": 6
+  },
+  {
+    "type": "text",
+    "text": "We employ RoBERTa-base (Liu et al., 2019) as our backbone PLM, consistent with prior work. For the reasoning path ranker training, we use a learning rate of 2e-5 with a margin of 1.0 for WebQSP, and 1e-5 with a margin of 0.8 for CWQ. Our framework supports integration with various LLMs, we evaluate with both proprietary models (ChatGPT, GPT-4o-mini, DeepSeek-V3) and open-source models (Llama3.2-3B, Llama3.1-8B, Qwen2.5-14B). Across all experiments, we set the number of reasoning paths to 10 (K = 10), the number of filtered relations to 30 (N = 30), LLM temperature to 0.3, and maximum exploration rounds Dmax to 2 for WebQSP and 4 for CWQ. Proprietary LLMs were accessed through their official APIs23, while open-source models were deployed on 4 NVIDIA A800-80G GPUs.",
+    "bbox": [
+      110,
+      533,
+      490,
+      807
+    ],
+    "page_idx": 6
+  },
+  {
+    "type": "text",
+    "text": "5.4 Main Results (RQ1 & RQ2)",
+    "text_level": 2,
+    "bbox": [
+      114,
+      818,
+      381,
+      833
+    ],
+    "page_idx": 6
+  },
+  {
+    "type": "text",
+    "text": "We compare RJE with various state-of-the-art baseline methods to evaluate its effectiveness in KGQA. As shown in Table 1, RJE consistently delivers performance gains across different LLMs and datasets. When GPT-4o-mini and DeepSeek-V3 are used as backbone LLMs, RJE outperforms all baseline methods, including LLM-Only methods, Retrieval-Reasoning Methods, Retrieval-Augmented Generation Methods, Fine-tuned Agent-based Methods, and Prompting Agent-based Methods. This highlights the superiority of our framework. It is noteworthy that small-sized LLMs also demonstrate competitive performance within our framework. For instance, Llama3.2-3B within RJE achieves performance comparable to ChatGPT used in PoG, the performance gap between the two is merely 0.3% on CWQ. Meanwhile, RJE with Llama3.1- 8B performs slightly below PoG with GPT-4 on CWQ but slightly surpasses it on WebQSP. Additionally, we present comprehensive Macro-F1 results in Appendix C.",
+    "bbox": [
+      112,
+      838,
+      492,
+      888
+    ],
+    "page_idx": 6
+  },
+  {
+    "type": "table",
+    "img_path": "images/80587366ba256768bdb9babb9fdb8a189abe25c9766d8ad0a5949cf679db6263.jpg",
+    "table_caption": [
+      "Table 2: Results of ToG, PoG and RJE on various backbone models on two datasets."
+    ],
+    "table_footnote": [],
+    "bbox": [
+      537,
+      82,
+      855,
+      272
+    ],
+    "page_idx": 6
+  },
+  {
+    "type": "text",
+    "text": "",
+    "bbox": [
+      507,
+      341,
+      887,
+      631
+    ],
+    "page_idx": 6
+  },
+  {
+    "type": "text",
+    "text": "As shown in Table 2, RJE provides significant performance enhancement for small-sized LLMs. Specifically, the smaller the LLM, the greater the performance boost from RJE. With Llama3.1-8B, RJE achieves a 27.9% improvement over PoG on CWQ and 13.5% on WebQSP. Even more notably, using Llama3.2-3B, RJE achieves a remarkable improvement of 41.5% over PoG on CWQ (62.9% vs. 21.4%) and 33.3% on WebQSP (82.6% vs. 49.3%). Although the improvements are less dramatic with larger and more advanced LLMs, such as Qwen2.5-14B and GPT-4o-mini, RJE still consistently outperforms PoG by at least 9.9% on both datasets. These results suggest that RJE is particularly valuable for enhancing the capabilities of smaller LLMs, effectively narrowing the performance gap between smaller and larger models in KGQA tasks. Additionally, Results Analysis and",
+    "bbox": [
+      507,
+      632,
+      889,
+      923
+    ],
+    "page_idx": 6
+  },
+  {
+    "type": "page_footnote",
+    "text": "2https://platform.openai.com/docs/overview",
+    "bbox": [
+      134,
+      894,
+      458,
+      908
+    ],
+    "page_idx": 6
+  },
+  {
+    "type": "page_footnote",
+    "text": "3https://api-docs.deepseek.com",
+    "bbox": [
+      136,
+      908,
+      371,
+      922
+    ],
+    "page_idx": 6
+  },
+  {
+    "type": "table",
+    "img_path": "images/97f329861854bc0970c15a72fcb7a7200447b116a1ff4232e2d3fa250df007fd.jpg",
+    "table_caption": [
+      "Table 3: Ablation experiment results using Llama3.1-8B of removing each stage and each module, respectively."
+    ],
+    "table_footnote": [],
+    "bbox": [
+      163,
+      82,
+      440,
+      180
+    ],
+    "page_idx": 7
+  },
+  {
+    "type": "text",
+    "text": "Case Study can be found in Appendix F and Appendix G, respectively.",
+    "bbox": [
+      112,
+      247,
+      489,
+      279
+    ],
+    "page_idx": 7
+  },
+  {
+    "type": "text",
+    "text": "5.5 Ablation Study (RQ3)",
+    "text_level": 2,
+    "bbox": [
+      114,
+      290,
+      334,
+      305
+    ],
+    "page_idx": 7
+  },
+  {
+    "type": "text",
+    "text": "We conduct comprehensive ablation experiments to evaluate each component of our RJE framework, using Llama3.1-8B as the backbone LLM across both CWQ and WebQSP datasets. Table 3 presents the results of systematically removing key stages and modules: w/o Exploration (removing the exploration stage, using only the retrieval and judgment stages), w/o Retrieval (removing the retrieval stage, using only the exploration stage), w/o Ranking (removing the reasoning path ranking module), w/o Decomposition (removing the question decomposition module), and w/o Assistance (removing the retriever-assisted exploration module).",
+    "bbox": [
+      110,
+      310,
+      490,
+      519
+    ],
+    "page_idx": 7
+  },
+  {
+    "type": "text",
+    "text": "As shown in Table 3, the results demonstrate that each component contributes positively to the overall performance. Specifically, on CWQ, w/o Retrieval results in a 10.8% drop in performance, while w/o Exploration leads to a more substantial 30.4% drop. On WebQSP, performance decreases by 5.3% and 15.5% when w/o Retrieval and w/o Exploration, respectively. These findings highlight the critical importance of the synergistic collaboration between retriever and LLMs within our RJE framework. The auxiliary modules in our framework contribute measurable performance improvements as well. Specifically, on WebQSP, the reasoning path ranking, question decomposition, and retriever-assisted exploration modules improve performance by 1.2%, 3.2%, and 1.5%, respectively. On the more challenging CWQ dataset, the corresponding improvements are 4.6%, 2.7%, and 1.9%. These results demonstrate that the auxiliary modules effectively alleviate the reasoning burden on small-sized LLMs in KGQA tasks, contributing to enhanced overall system performance.",
+    "bbox": [
+      110,
+      520,
+      490,
+      873
+    ],
+    "page_idx": 7
+  },
+  {
+    "type": "text",
+    "text": "Additional ablation studies on reasoning path ranking and the impact of the number of reasoning paths, filtered relations, and exploration rounds are provided in Appendix D and Appendix E.",
+    "bbox": [
+      112,
+      875,
+      489,
+      923
+    ],
+    "page_idx": 7
+  },
+  {
+    "type": "table",
+    "img_path": "images/22e47e17d573ce66cd7ff21e2af2807b8d9f27a81a61a3516c248fe9e867b7e7.jpg",
+    "table_caption": [
+      "Table 4: Efficiency comparison between our proposed RJE and baseline methods ToG and PoG."
+    ],
+    "table_footnote": [],
+    "bbox": [
+      514,
+      82,
+      878,
+      164
+    ],
+    "page_idx": 7
+  },
+  {
+    "type": "text",
+    "text": "",
+    "bbox": [
+      507,
+      231,
+      823,
+      248
+    ],
+    "page_idx": 7
+  },
+  {
+    "type": "text",
+    "text": "5.6 Efficiency Study (RQ4)",
+    "text_level": 2,
+    "bbox": [
+      509,
+      261,
+      739,
+      278
+    ],
+    "page_idx": 7
+  },
+  {
+    "type": "text",
+    "text": "We evaluate the computational efficiency of RJE against two leading Prompting LLM approaches: ToG and PoG. Table 4 summarizes the efficiency metrics across the CWQ and WebQSP datasets, including the average number of LLM calls, token usage, and time consumption per question. As shown in Table 4, RJE demonstrates superior efficiency in LLM calls, token utilization, and time consumption. On CWQ, RJE reduces LLM calls by 65.0% compared to ToG and 40.6% compared to PoG. This efficiency gain is even more pronounced on WebQSP, where RJE achieves reductions of 74.2% and 54.4% in LLM calls compared to ToG and PoG, respectively. As for token consumption, RJE reduces token usage by approximately 30% compared to PoG on CWQ, and by about 50% on WebQSP. Additionally, RJE exhibits significant time efficiency improvements, performing at least 5.9 times faster than ToG and at least 1.4 times faster than PoG across both datasets.",
+    "bbox": [
+      507,
+      284,
+      887,
+      606
+    ],
+    "page_idx": 7
+  },
+  {
+    "type": "text",
+    "text": "The efficiency gains of RJE stem from two key design aspects: first, its judgment stage directly answers the question when the paths provide sufficient evidence, without requiring additional exploration; second, RJE retrieves key paths from the KG and begins exploration from strategically selected entities along these paths, rather than starting from topic entities as in ToG and PoG. This early resolution capability and targeted exploration approach significantly reduce computational demands while maintaining high accuracy. Experimental results in Appendix H demonstrate that initiating exploration from selected entities along retrieval paths reduces exploration rounds, thereby alleviating computational burden.",
+    "bbox": [
+      507,
+      606,
+      887,
+      850
+    ],
+    "page_idx": 7
+  },
+  {
+    "type": "text",
+    "text": "6 Conclusion",
+    "text_level": 2,
+    "bbox": [
+      509,
+      863,
+      643,
+      878
+    ],
+    "page_idx": 7
+  },
+  {
+    "type": "text",
+    "text": "In this paper, we introduce the RJE framework, which addresses core limitations in existing KGQA methods by integrating precise retrieval, sufficiency judgment, and conditional exploration. Our specialized auxiliary modules, including Reasoning Path Ranking, Question Decomposition, and Retrieverassisted Exploration, significantly enhance the reasoning efficacy of smaller open-source LLMs in knowledge-intensive tasks. Empirical evaluations across standard KGQA benchmarks demonstrate that RJE not only outperforms existing approaches in both accuracy and efficiency, but also enables small-sized open-source LLMs to achieve comparable performance, advancing the development of more efficient and accessible KGQA systems.",
+    "bbox": [
+      507,
+      890,
+      885,
+      922
+    ],
+    "page_idx": 7
+  },
+  {
+    "type": "text",
+    "text": "",
+    "bbox": [
+      112,
+      85,
+      490,
+      294
+    ],
+    "page_idx": 8
+  },
+  {
+    "type": "text",
+    "text": "Limitations",
+    "text_level": 2,
+    "bbox": [
+      114,
+      309,
+      220,
+      325
+    ],
+    "page_idx": 8
+  },
+  {
+    "type": "text",
+    "text": "While our approach demonstrates significant improvements in KGQA, there are several limitations that suggest directions for future work. First, existing KGs, which are primarily constructed from internet corpora, often contain noisy triples and outdated information. Such noisy knowledge can mislead LLMs into making incorrect responses, even when using our proposed framework. In future work, we plan to investigate methods for detecting and filtering unreliable knowledge in KGs to reduce noise and enhance KGQA system reliability. Second, our experimental evaluation is limited to English language datasets. To assess the crosslingual capabilities of our approach, we intend to extend our evaluation to multiple languages.",
+    "bbox": [
+      110,
+      337,
+      490,
+      580
+    ],
+    "page_idx": 8
+  },
+  {
+    "type": "text",
+    "text": "Acknowledgments",
+    "text_level": 2,
+    "bbox": [
+      114,
+      594,
+      277,
+      611
+    ],
+    "page_idx": 8
+  },
+  {
+    "type": "text",
+    "text": "The research was partially supported by “Pioneer” and “Leading Goose” R&D Program of Zhejiang 2023C01029, the Plans for Major Provincial Science&Technology Projects No.:202303a07020006, and the China National Natural Science Foundation with no. 62132018.",
+    "bbox": [
+      112,
+      623,
+      490,
+      719
+    ],
+    "page_idx": 8
+  },
+  {
+    "type": "text",
+    "text": "References",
+    "text_level": 2,
+    "bbox": [
+      114,
+      750,
+      213,
+      765
+    ],
+    "page_idx": 8
+  },
+  {
+    "type": "list",
+    "sub_type": "ref_text",
+    "list_items": [
+      "Jinheon Baek, Alham Fikri Aji, Jens Lehmann, and Sung Ju Hwang. 2023a. Direct fact retrieval from knowledge graphs without entity linking. In Proceedings of the 61st Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers), pages 10038–10055.",
+      "Jinheon Baek, Alham Fikri Aji, and Amir Saffari. 2023b. Knowledge-augmented language model prompting for zero-shot knowledge graph question answering. arXiv preprint arXiv:2306.04136.",
+      "Kurt Bollacker, Colin Evans, Praveen Paritosh, Tim Sturge, and Jamie Taylor. 2008. Freebase: a collaboratively created graph database for structuring human knowledge. In Proceedings of the 2008 ACM SIG-MOD international conference on Management of data, pages 1247–1250.",
+      "Tom Brown, Benjamin Mann, Nick Ryder, Melanie Subbiah, Jared D Kaplan, Prafulla Dhariwal, Arvind Neelakantan, Pranav Shyam, Girish Sastry, Amanda Askell, and 1 others. 2020. Language models are few-shot learners. Advances in neural information processing systems, 33:1877–1901.",
+      "Shulin Cao, Jiaxin Shi, Zijun Yao, Xin Lv, Jifan Yu, Lei Hou, Juanzi Li, Zhiyuan Liu, and Jinghui Xiao. 2022. Program transfer for answering complex questions over knowledge bases. In Proceedings of the 60th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers), pages 8128– 8140.",
+      "Liyi Chen, Panrong Tong, Zhongming Jin, Ying Sun, Jieping Ye, and Hui Xiong. 2024. Plan-on-graph: Self-correcting adaptive planning of large language model on knowledge graphs. In The Thirty-eighth Annual Conference on Neural Information Processing Systems.",
+      "Sitao Cheng, Ziyuan Zhuang, Yong Xu, Fangkai Yang, Chaoyun Zhang, Xiaoting Qin, Xiang Huang, Ling Chen, Qingwei Lin, Dongmei Zhang, and 1 others. 2024. Call me when necessary: Llms can efficiently and faithfully reason over structured environments. In Findings of the Association for Computational Linguistics ACL 2024, pages 4275–4295.",
+      "Wentao Ding, Jinmao Li, Liangchuan Luo, and Yuzhong Qu. 2024. Enhancing complex question answering over knowledge graphs through evidence pattern retrieval. In Proceedings of the ACM Web Conference 2024, pages 2106–2115.",
+      "Yunfan Gao, Yun Xiong, Xinyu Gao, Kangxiang Jia, Jinliu Pan, Yuxi Bi, Yixin Dai, Jiawei Sun, Haofen Wang, and Haofen Wang. 2023. Retrieval-augmented generation for large language models: A survey. arXiv preprint arXiv:2312.10997, 2:1.",
+      "Aaron Grattafiori, Abhimanyu Dubey, Abhinav Jauhri, Abhinav Pandey, Abhishek Kadian, Ahmad Al-Dahle, Aiesha Letman, Akhil Mathur, Alan Schelten, Alex Vaughan, and 1 others. 2024. The llama 3 herd of models. arXiv preprint arXiv:2407.21783.",
+      "Xiaoxin He, Yijun Tian, Yifei Sun, Nitesh Chawla, Thomas Laurent, Yann LeCun, Xavier Bresson, and Bryan Hooi. 2024. G-retriever: Retrieval-augmented generation for textual graph understanding and question answering. Advances in Neural Information Processing Systems, 37:132876–132907.",
+      "Xixin Hu, Xuan Wu, Yiheng Shu, and Yuzhong Qu. 2022. Logical form generation via multi-task learning for complex question answering over knowledge"
+    ],
+    "bbox": [
+      115,
+      775,
+      487,
+      854
+    ],
+    "page_idx": 8
+  },
+  {
+    "type": "list",
+    "sub_type": "ref_text",
+    "list_items": [
+      "bases. In Proceedings of the 29th international conference on computational linguistics, pages 1687– 1696.",
+      "Jie Huang and Kevin Chen-Chuan Chang. 2023. Towards reasoning in large language models: A survey. In Findings of the Association for Computational Linguistics: ACL 2023, pages 1049–1065.",
+      "Yubo Huang and Guosun Zeng. 2024. Rd-p: A trustworthy retrieval-augmented prompter with knowledge graphs for llms. In Proceedings of the 33rd ACM International Conference on Information and Knowledge Management, pages 942–952.",
+      "Yixin Ji, Kaixin Wu, Juntao Li, Wei Chen, Mingjie Zhong, Xu Jia, and Min Zhang. 2024. Retrieval and reasoning on kgs: Integrate knowledge graphs into large language models for complex question answering. In Findings of the Association for Computational Linguistics: EMNLP 2024, pages 7598–7610.",
+      "Jinhao Jiang, Kun Zhou, Zican Dong, Keming Ye, Wayne Xin Zhao, and Ji-Rong Wen. 2023a. Structgpt: A general framework for large language model to reason over structured data. In Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing, pages 9237–9251.",
+      "Jinhao Jiang, Kun Zhou, Wayne Xin Zhao, Yaliang Li, and Ji-Rong Wen. 2023b. Reasoninglm: Enabling structural subgraph reasoning in pre-trained language models for question answering over knowledge graph. In Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing, pages 3721–3735.",
+      "Jinhao Jiang, Kun Zhou, Wayne Xin Zhao, Yang Song, Chen Zhu, Hengshu Zhu, and Ji-Rong Wen. 2024. Kg-agent: An efficient autonomous agent framework for complex reasoning over knowledge graph. arXiv preprint arXiv:2402.11163.",
+      "Jinhao Jiang, Kun Zhou, Xin Zhao, and Ji-Rong Wen. 2023c. Unikgqa: Unified retrieval and reasoning for solving multi-hop question answering over knowledge graph. In The Eleventh International Conference on Learning Representations.",
+      "Kun Li, Tianhua Zhang, Xixin Wu, Hongyin Luo, James Glass, and Helen Meng. 2024. Decoding on graphs: Faithful and sound reasoning on knowledge graphs through generation of well-formed chains. arXiv preprint arXiv:2410.18415.",
+      "Mufei Li, Siqi Miao, and Pan Li. 2025. Simple is effective: The roles of graphs and large language models in knowledge-graph-based retrieval-augmented generation. In The Thirteenth International Conference on Learning Representations.",
+      "Shiyang Li, Yifan Gao, Haoming Jiang, Qingyu Yin, Zheng Li, Xifeng Yan, Chao Zhang, and Bing Yin. 2023. Graph reasoning for question answering with triplet retrieval. In Findings of the Association for Computational Linguistics: ACL 2023, pages 3366– 3375.",
+      "Yinhan Liu, Myle Ott, Naman Goyal, Jingfei Du, Mandar Joshi, Danqi Chen, Omer Levy, Mike Lewis, Luke Zettlemoyer, and Veselin Stoyanov. 2019. Roberta: A robustly optimized bert pretraining approach. arXiv preprint arXiv:1907.11692.",
+      "Haoran Luo, E Haihong, Zichen Tang, Shiyao Peng, Yikai Guo, Wentai Zhang, Chenghao Ma, Guanting Dong, Meina Song, Wei Lin, and 1 others. 2024a. Chatkbqa: A generate-then-retrieve framework for knowledge base question answering with fine-tuned large language models. In Findings of the Association for Computational Linguistics ACL 2024, pages 2039–2056.",
+      "LINHAO Luo, Yuan-Fang Li, Reza Haf, and Shirui Pan. 2024b. Reasoning on graphs: Faithful and interpretable large language model reasoning. In The Twelfth International Conference on Learning Representations.",
+      "Linhao Luo, Zicheng Zhao, Chen Gong, Gholamreza Haffari, and Shirui Pan. 2024c. Graphconstrained reasoning: Faithful reasoning on knowledge graphs with large language models. arXiv preprint arXiv:2410.13080.",
+      "Yun Luo, Zhen Yang, Fandong Meng, Yafu Li, Jie Zhou, and Yue Zhang. 2023. An empirical study of catastrophic forgetting in large language models during continual fine-tuning. arXiv preprint arXiv:2308.08747.",
+      "Elan Markowitz, Anil Ramakrishna, Jwala Dhamala, Ninareh Mehrabi, Charith Peris, Rahul Gupta, Kai-Wei Chang, and Aram Galstyan. 2024. Tree-oftraversals: A zero-shot reasoning algorithm for augmenting black-box language models with knowledge graphs. In Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers), pages 12302–12319.",
+      "Costas Mavromatis and George Karypis. 2024. Gnnrag: Graph neural retrieval for large language model reasoning. arXiv preprint arXiv:2405.20139.",
+      "Thomas Pellissier Tanon, Denny Vrandeciˇ c, Sebastian´ Schaffert, Thomas Steiner, and Lydia Pintscher. 2016. From freebase to wikidata: The great migration. In Proceedings of the 25th international conference on world wide web, pages 1419–1428.",
+      "Jiashuo Sun, Chengjin Xu, Lumingyuan Tang, Saizhuo Wang, Chen Lin, Yeyun Gong, Lionel Ni, Heung-Yeung Shum, and Jian Guo. 2024. Think-on-graph: Deep and responsible reasoning of large language model on knowledge graph. In The Twelfth International Conference on Learning Representations.",
+      "Alon Talmor and Jonathan Berant. 2018. The web as a knowledge-base for answering complex questions. In Proceedings of the 2018 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies, Volume 1 (Long Papers), pages 641–651."
+    ],
+    "bbox": [
+      129,
+      85,
+      489,
+      126
+    ],
+    "page_idx": 9
+  },
+  {
+    "type": "list",
+    "sub_type": "ref_text",
+    "list_items": [
+      "Song Wang, Junhong Lin, Xiaojie Guo, Julian Shun, Jundong Li, and Yada Zhu. 2025. Reasoning of large language models over knowledge graphs with superrelations. In The Thirteenth International Conference on Learning Representations.",
+      "Xuezhi Wang, Jason Wei, Dale Schuurmans, Quoc V Le, Ed H Chi, Sharan Narang, Aakanksha Chowdhery, and Denny Zhou. 2023. Self-consistency improves chain of thought reasoning in language models. In The Eleventh International Conference on Learning Representations.",
+      "Jason Wei, Xuezhi Wang, Dale Schuurmans, Maarten Bosma, Fei Xia, Ed Chi, Quoc V Le, Denny Zhou, and 1 others. 2022. Chain-of-thought prompting elicits reasoning in large language models. Advances in neural information processing systems, 35:24824– 24837.",
+      "Guanming Xiong, Junwei Bao, and Wen Zhao. 2024. Interactive-kbqa: Multi-turn interactions for knowledge base question answering with large language models. In Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers), pages 10561–10582.",
+      "Wen-tau Yih, Matthew Richardson, Christopher Meek, Ming-Wei Chang, and Jina Suh. 2016. The value of semantic parse labeling for knowledge base question answering. In Proceedings of the 54th Annual Meeting of the Association for Computational Linguistics (Volume 2: Short Papers), pages 201–206.",
+      "Jing Zhang, Xiaokang Zhang, Jifan Yu, Jian Tang, Jie Tang, Cuiping Li, and Hong Chen. 2022. Subgraph retrieval enhanced model for multi-hop knowledge base question answering. In Proceedings of the 60th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers), pages 5773– 5784.",
+      "Lingxi Zhang, Jing Zhang, Yanling Wang, Shulin Cao, Xinmei Huang, Cuiping Li, Hong Chen, and Juanzi Li. 2023. Fc-kbqa: A fine-to-coarse composition framework for knowledge base question answering. In Proceedings of the 61st Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers), pages 1002–1017.",
+      "Qinggang Zhang, Shengyuan Chen, Yuanchen Bei, Zheng Yuan, Huachi Zhou, Zijin Hong, Junnan Dong, Hao Chen, Yi Chang, and Xiao Huang. 2025. A survey of graph retrieval-augmented generation for customized large language models. arXiv preprint arXiv:2501.13958.",
+      "Ruilin Zhao, Feng Zhao, Long Wang, Xianzhi Wang, and Guandong Xu. 2024. Kg-cot: Chain-of-thought prompting of large language models over knowledge graphs for knowledge-aware question answering. In Proceedings of the Thirty-Third International Joint Conference on Artificial Intelligence (IJCAI-24), pages 6642–6650. International Joint Conferences on Artificial Intelligence."
+    ],
+    "bbox": [
+      115,
+      85,
+      489,
+      153
+    ],
+    "page_idx": 10
+  },
+  {
+    "type": "table",
+    "img_path": "images/157bd0d5d8e638cd5a2473db87da898133e6b7485879ac9acdec6986f3500dd8.jpg",
+    "table_caption": [
+      "Table 5: Statistics of different KGQA datasets used in the experiments."
+    ],
+    "table_footnote": [],
+    "bbox": [
+      515,
+      83,
+      878,
+      131
+    ],
+    "page_idx": 10
+  },
+  {
+    "type": "text",
+    "text": "A Datasets",
+    "text_level": 2,
+    "bbox": [
+      509,
+      199,
+      623,
+      215
+    ],
+    "page_idx": 10
+  },
+  {
+    "type": "text",
+    "text": "We evaluate the proposed method on the WebQuestionsSP and ComplexWebQuestions datasets. For fair comparison with prior research (Sun et al., 2024; Chen et al., 2024), we maintain identical training and testing splits. Table 5 presents a comprehensive summary of the dataset statistics.",
+    "bbox": [
+      507,
+      227,
+      887,
+      325
+    ],
+    "page_idx": 10
+  },
+  {
+    "type": "text",
+    "text": "B Baselines",
+    "text_level": 2,
+    "bbox": [
+      509,
+      338,
+      630,
+      355
+    ],
+    "page_idx": 10
+  },
+  {
+    "type": "text",
+    "text": "(1) LLM-only methods, these approaches rely solely on large language models without explicit knowledge graph integration:",
+    "bbox": [
+      507,
+      366,
+      884,
+      414
+    ],
+    "page_idx": 10
+  },
+  {
+    "type": "text",
+    "text": "Standard prompting (IO prompt) (Brown et al., 2020) demonstrated that LLMs outperform traditional language models on task-agnostic and fewshot problems.",
+    "bbox": [
+      507,
+      417,
+      887,
+      480
+    ],
+    "page_idx": 10
+  },
+  {
+    "type": "text",
+    "text": "Chain-of-Thought prompting (CoT) (Wei et al., 2022) incorporates “think step by step” prompts to enhance LLM performance across various natural language processing tasks.",
+    "bbox": [
+      507,
+      481,
+      885,
+      546
+    ],
+    "page_idx": 10
+  },
+  {
+    "type": "text",
+    "text": "Self-Consistency (SC) (Wang et al., 2023) improves performance by sampling multiple diverse reasoning paths through few-shot CoT prompts and selecting the most consistent answer among the generated outputs.",
+    "bbox": [
+      507,
+      546,
+      885,
+      627
+    ],
+    "page_idx": 10
+  },
+  {
+    "type": "text",
+    "text": "(2) Retrieval-Reasoning Methods, these methods focus on effective subgraph retrieval techniques:",
+    "bbox": [
+      507,
+      629,
+      887,
+      676
+    ],
+    "page_idx": 10
+  },
+  {
+    "type": "text",
+    "text": "SR (Zhang et al., 2022) proposes a trainable subgraph retriever decoupled from the downstream reasoner, incorporating a PLM to expand paths for subgraph induction with automatic termination criteria.",
+    "bbox": [
+      507,
+      677,
+      887,
+      757
+    ],
+    "page_idx": 10
+  },
+  {
+    "type": "text",
+    "text": "UniKGQA (Jiang et al., 2023c) integrates graph retrieval and reasoning into a single model that incorporates a PLM.",
+    "bbox": [
+      507,
+      759,
+      885,
+      808
+    ],
+    "page_idx": 10
+  },
+  {
+    "type": "text",
+    "text": "ReasoningLM (Jiang et al., 2023b) enables effective question understanding and structured reasoning over knowledge graphs by incorporating subgraph-aware self-attention and an adaptation tuning strategy.",
+    "bbox": [
+      507,
+      808,
+      885,
+      889
+    ],
+    "page_idx": 10
+  },
+  {
+    "type": "text",
+    "text": "EPR (Ding et al., 2024) enhances subgraph extraction for KGQA by modeling and retrieving structural evidence patterns that connect necessary entities and relations.",
+    "bbox": [
+      507,
+      890,
+      887,
+      923
+    ],
+    "page_idx": 10
+  },
+  {
+    "type": "text",
+    "text": "",
+    "bbox": [
+      112,
+      85,
+      487,
+      116
+    ],
+    "page_idx": 11
+  },
+  {
+    "type": "text",
+    "text": "(3) Retrieval-Augmented Generation Methods, these approaches combine retrieval mechanisms with LLM capabilities:",
+    "bbox": [
+      112,
+      117,
+      490,
+      164
+    ],
+    "page_idx": 11
+  },
+  {
+    "type": "text",
+    "text": "KG-CoT (Zhao et al., 2024) enhances LLMs reasoning by integrating step-by-step graph reasoning over KGs to generate explicit reasoning paths, enabling knowledge-aware, plug-and-play CoT prompting.",
+    "bbox": [
+      112,
+      165,
+      489,
+      246
+    ],
+    "page_idx": 11
+  },
+  {
+    "type": "text",
+    "text": "RD-P (Huang and Zeng, 2024) integrates KGs with LLMs by retrieving and verifying trustworthy reasoning paths to construct reliable prompts, enhancing reasoning accuracy and efficiency without modifying LLM parameters.",
+    "bbox": [
+      112,
+      246,
+      489,
+      325
+    ],
+    "page_idx": 11
+  },
+  {
+    "type": "text",
+    "text": "SubgraphRAG (Li et al., 2025) enhances KGbased RAG by efficiently retrieving high-quality subgraphs using a lightweight MLP with structural features, enabling effective and adaptable LLM reasoning without fine-tuning.",
+    "bbox": [
+      112,
+      326,
+      489,
+      406
+    ],
+    "page_idx": 11
+  },
+  {
+    "type": "text",
+    "text": "(4) Fine-tuned Agent-based Methods, these methods involve fine-tuning LLMs with knowledge graph information:",
+    "bbox": [
+      112,
+      407,
+      487,
+      455
+    ],
+    "page_idx": 11
+  },
+  {
+    "type": "text",
+    "text": "RoG (Luo et al., 2024b) enables faithful and interpretable KG reasoning by fine-tuning LLMs within a planning-retrieval-reasoning framework that distills knowledge into relation path planning and optimized reasoning over retrieved KG paths.",
+    "bbox": [
+      112,
+      455,
+      489,
+      536
+    ],
+    "page_idx": 11
+  },
+  {
+    "type": "text",
+    "text": "KG-Agent (Jiang et al., 2024) empowers smallsized LLMs to autonomously perform complex KG reasoning by fine-tuning them with code-based instruction data and integrating a multifunctional toolbox for structured operations and iterative decision-making.",
+    "bbox": [
+      112,
+      536,
+      489,
+      632
+    ],
+    "page_idx": 11
+  },
+  {
+    "type": "text",
+    "text": "GCR (Luo et al., 2024c) ensures faithful KG reasoning by fine-tuning a lightweight KG-specialized LLM to generate constrained decoding paths via a KG-Trie index, then leveraging a general inductive power of LLM to produce accurate final answers.",
+    "bbox": [
+      112,
+      632,
+      489,
+      713
+    ],
+    "page_idx": 11
+  },
+  {
+    "type": "text",
+    "text": "(5) Prompting Agent-based Methods, these approaches utilize sophisticated prompting techniques with KG integration:",
+    "bbox": [
+      112,
+      713,
+      489,
+      760
+    ],
+    "page_idx": 11
+  },
+  {
+    "type": "text",
+    "text": "StructGPT (Jiang et al., 2023a) defines an interface for accessing and filtering knowledge from KGs data under limited constraints, and leverages LLMs to iteratively infer answers or generate follow-up plans.",
+    "bbox": [
+      112,
+      760,
+      489,
+      841
+    ],
+    "page_idx": 11
+  },
+  {
+    "type": "text",
+    "text": "Interactive-KBQA (Xiong et al., 2024) Interactive KBQA directly leverages LLMs to interact with KGs, subsequently generating logical forms.",
+    "bbox": [
+      112,
+      843,
+      489,
+      890
+    ],
+    "page_idx": 11
+  },
+  {
+    "type": "text",
+    "text": "ReKnoS (Wang et al., 2025) enhances knowledge graph reasoning by introducing super-relations, which group domain-specific relations to expand the reasoning space and improve retrieval performance.",
+    "bbox": [
+      112,
+      891,
+      489,
+      923
+    ],
+    "page_idx": 11
+  },
+  {
+    "type": "table",
+    "img_path": "images/ec23df8bd3e50ea5bda97539b84f05049d26fe36a448eba351e063643ecc0f3e.jpg",
+    "table_caption": [
+      "Table 6: Results on CWQ and WebQSP under Hits@1 and Macro-F1; the best results are highlighted in bold."
+    ],
+    "table_footnote": [],
+    "bbox": [
+      512,
+      82,
+      880,
+      249
+    ],
+    "page_idx": 11
+  },
+  {
+    "type": "text",
+    "text": "",
+    "bbox": [
+      507,
+      313,
+      885,
+      361
+    ],
+    "page_idx": 11
+  },
+  {
+    "type": "text",
+    "text": "ToG (Sun et al., 2024) iteratively retrieves relevant triples from the knowledge graph and uses LLMs to evaluate whether the reasoning paths within beam search are sufficient to answer the question or if additional next-hop information is needed.",
+    "bbox": [
+      507,
+      362,
+      885,
+      457
+    ],
+    "page_idx": 11
+  },
+  {
+    "type": "text",
+    "text": "PoG (Chen et al., 2024) builds upon ToG by incorporating mechanisms such as Adaptive Breadth, Guidance, Memory, and Reflection.",
+    "bbox": [
+      507,
+      458,
+      887,
+      508
+    ],
+    "page_idx": 11
+  },
+  {
+    "type": "text",
+    "text": "C Analysis of Macro-F1 Metric",
+    "text_level": 2,
+    "bbox": [
+      509,
+      519,
+      800,
+      536
+    ],
+    "page_idx": 11
+  },
+  {
+    "type": "text",
+    "text": "To provide a more comprehensive assessment of RJE’s performance, we conduct additional evaluations using Macro-F1 across various LLMs. Since Macro F1 is not consistently reported in prior work (e.g., PoG (Chen et al., 2024) and ToG (Sun et al., 2024)), we compare against only those baselines that include this metric.",
+    "bbox": [
+      507,
+      545,
+      887,
+      657
+    ],
+    "page_idx": 11
+  },
+  {
+    "type": "text",
+    "text": "As shown in Table 6 , RJE achieves superior performance compared to most baselines on both Hits@1 and Macro-F1. The only exception occurs on the WebQSP dataset, where KG-agent (a fine-tuned LLM-based method) marginally outperforms RJE with DeepSeek-V3 on Macro-F1. However, RJE with DeepSeek-V3 significantly surpasses KG-agent in Hits@1 performance. The excellent Macro-F1 performance of RJE indicates that it simultaneously achieves high precision and recall in knowledge-graph reasoning tasks.",
+    "bbox": [
+      507,
+      658,
+      887,
+      837
+    ],
+    "page_idx": 11
+  },
+  {
+    "type": "text",
+    "text": "D The Performance of Reasoning Path Ranking",
+    "text_level": 2,
+    "bbox": [
+      509,
+      847,
+      862,
+      881
+    ],
+    "page_idx": 11
+  },
+  {
+    "type": "text",
+    "text": "We conduct a systematic evaluation of the impact of the reasoning path ranking on retrieval performance, using answer coverage at various retrieval scales as the metric. Figure 3 presents a comparative analysis between the standalone relation retriever and its integration with the reasoning path ranker across two datasets. The results demonstrate that our combined approach consistently achieves higher coverage across all candidate reasoning path sizes. Notably, on the more challenging CWQ dataset, the contribution of the ranker yields particularly substantial improvements. Furthermore, as the candidate path count decreases, the performance enhancement provided by the ranker becomes increasingly significant.",
+    "bbox": [
+      507,
+      890,
+      885,
+      923
+    ],
+    "page_idx": 11
+  },
+  {
+    "type": "text",
+    "text": "",
+    "bbox": [
+      112,
+      85,
+      490,
+      296
+    ],
+    "page_idx": 12
+  },
+  {
+    "type": "chart",
+    "img_path": "images/ed169c36499efd5e16fdb77662c71100895f4ad163116a21190374af04c4cdac.jpg",
+    "content": "",
+    "chart_caption": [
+      "(a) WebQSP"
+    ],
+    "chart_footnote": [],
+    "bbox": [
+      139,
+      316,
+      462,
+      461
+    ],
+    "page_idx": 12
+  },
+  {
+    "type": "chart",
+    "img_path": "images/a9327fc194a542e96adeaac3bf44f65d68e6a776dd98b21938a735d8287640b6.jpg",
+    "content": "",
+    "chart_caption": [
+      "(b) CWQ",
+      "Figure 3: Comparison of Answer Coverage Across Different Numbers of Candidate Reasoning Paths."
+    ],
+    "chart_footnote": [],
+    "bbox": [
+      139,
+      493,
+      462,
+      638
+    ],
+    "page_idx": 12
+  },
+  {
+    "type": "text",
+    "text": "E Addition Ablation Study",
+    "text_level": 2,
+    "bbox": [
+      114,
+      743,
+      364,
+      759
+    ],
+    "page_idx": 12
+  },
+  {
+    "type": "text",
+    "text": "The RJE framework contains three manually configurable hyperparameters: the number of reasoning paths to be refined by the reasoning path ranker, the number of relations to be considered by the relation path retriever during retriever-assisted exploration and the maximum number of exploration rounds. To investigate how these parameters influence the performance of RJE, we conduct a series of experiments and derive practical insights.",
+    "bbox": [
+      112,
+      777,
+      490,
+      923
+    ],
+    "page_idx": 12
+  },
+  {
+    "type": "chart",
+    "img_path": "images/aac5a28445e901048481e4700e0227082d2decc34247a98ec1c603c0a83995f4.jpg",
+    "content": "",
+    "chart_caption": [
+      "Figure 4: The impact of the number of Reasoning Paths on performance on the CWQ dataset."
+    ],
+    "chart_footnote": [],
+    "bbox": [
+      515,
+      85,
+      875,
+      218
+    ],
+    "page_idx": 12
+  },
+  {
+    "type": "chart",
+    "img_path": "images/55ca729d5b24c8378345af6debaf197005862110360a59d5271341b7cc773fe4.jpg",
+    "content": "",
+    "chart_caption": [
+      "Figure 5: The impact of the number of Relations on performance on the CWQ dataset."
+    ],
+    "chart_footnote": [],
+    "bbox": [
+      515,
+      278,
+      877,
+      412
+    ],
+    "page_idx": 12
+  },
+  {
+    "type": "text",
+    "text": "E.1 Impact of the Number of Paths",
+    "text_level": 2,
+    "bbox": [
+      509,
+      481,
+      803,
+      497
+    ],
+    "page_idx": 12
+  },
+  {
+    "type": "text",
+    "text": "In the RJE framework, the reasoning path ranker outputs top-K candidate paths for judgment evaluation. The number of paths represents a critical trade-off: too few paths limit available evidence, while too many introduce noise that degrades LLM performance. To examine this balance, we conduct experiments on CWQ with varying path counts.",
+    "bbox": [
+      509,
+      502,
+      885,
+      615
+    ],
+    "page_idx": 12
+  },
+  {
+    "type": "text",
+    "text": "As shown in Figure 4, performance increases substantially from 1 to 10 paths, confirming the ranker effectively identifies relevant information for accurate judgment. However, performance declines beyond 20 paths, indicating that excessive candidates introduce irrelevant information that misleads the LLM. The relationship between path count and time cost exhibits a U-shaped pattern. Initially, increasing path count reduces overall time as sufficient evidence from multiple paths decreases the need for extensive reasoning exploration. However, when the path count becomes too large, the additional tokens and noise both mislead the LLM and increase processing time.",
+    "bbox": [
+      507,
+      615,
+      885,
+      841
+    ],
+    "page_idx": 12
+  },
+  {
+    "type": "text",
+    "text": "These results demonstrate that the choice of path count significantly affects performance. An appropriate setting balances the provision of sufficient evidence with noise reduction, improving both reasoning accuracy and computational efficiency.",
+    "bbox": [
+      507,
+      843,
+      887,
+      923
+    ],
+    "page_idx": 12
+  },
+  {
+    "type": "chart",
+    "img_path": "images/3f867b959bf568666c78cc4bc9d345e8d64cac245381c9128465a42bb15aa6ad.jpg",
+    "content": "",
+    "chart_caption": [
+      "Figure 6: The impact of exploration rounds on performance on the CWQ dataset."
+    ],
+    "chart_footnote": [],
+    "bbox": [
+      119,
+      85,
+      480,
+      219
+    ],
+    "page_idx": 13
+  },
+  {
+    "type": "text",
+    "text": "E.2 Impact of the Number of Relations",
+    "text_level": 2,
+    "bbox": [
+      114,
+      287,
+      438,
+      303
+    ],
+    "page_idx": 13
+  },
+  {
+    "type": "text",
+    "text": "Previous agent-based approaches typically feed all relations into LLMs during relation exploration. Although effective with powerful proprietary LLMs, this strategy often degrades performance in smaller open-source models due to excessive input length. To address this limitation, we employ the relation path retriever to pre-filter the N most relevant relations, which are then fed to the LLMs for final selection. Notably, N is smaller than the total number of relations. We conduct experiments on CWQ with varying N values to assess the performance impact.",
+    "bbox": [
+      112,
+      309,
+      490,
+      502
+    ],
+    "page_idx": 13
+  },
+  {
+    "type": "text",
+    "text": "As shown in Figure 5, varying the relation count does not cause large performance fluctuations because the retriever consistently ranks relevant relations at the top. Even a small number of relations can yield strong performance. On closer inspection, increasing the number of relations from 3 to 10 yields gradual gains. However, beyond N = 10, performance begins to decline, suggesting that excessive relations introduce noise that impairs the LLM’s focus on the most informative candidates. Processing time increases with relation count due to additional tokens and LLM exploration.",
+    "bbox": [
+      112,
+      502,
+      490,
+      695
+    ],
+    "page_idx": 13
+  },
+  {
+    "type": "text",
+    "text": "These results demonstrate that the relation path retriever effectively narrows the exploration space while enhancing LLM reasoning capabilities through focused candidate provision.",
+    "bbox": [
+      112,
+      696,
+      489,
+      762
+    ],
+    "page_idx": 13
+  },
+  {
+    "type": "text",
+    "text": "E.3 Impact of Exploration Rounds",
+    "text_level": 2,
+    "bbox": [
+      114,
+      772,
+      405,
+      788
+    ],
+    "page_idx": 13
+  },
+  {
+    "type": "text",
+    "text": "To prevent LLMs from engaging in endless exploration, we set an upper limit on the number of exploration rounds. We conduct experiments on CWQ with varying numbers of rounds. As shown in Figure 6, performance consistently improves with additional rounds, suggesting that further exploration enables RJE to discover more relevant information for answering complex questions. However, after four rounds, the performance gain becomes marginal, since the maximum hop count on CWQ is 4.",
+    "bbox": [
+      112,
+      794,
+      492,
+      923
+    ],
+    "page_idx": 13
+  },
+  {
+    "type": "text",
+    "text": "",
+    "bbox": [
+      507,
+      85,
+      884,
+      133
+    ],
+    "page_idx": 13
+  },
+  {
+    "type": "text",
+    "text": "Processing time increases with the maximum round due to additional exploration cycles. However, the time overhead exhibits diminishing gains at higher values, as fewer questions actually require extensive exploration rounds. To balance computational cost and effectiveness, we set the maximum exploration rounds to 4.",
+    "bbox": [
+      507,
+      134,
+      887,
+      248
+    ],
+    "page_idx": 13
+  },
+  {
+    "type": "text",
+    "text": "F Results Analysis",
+    "text_level": 2,
+    "bbox": [
+      509,
+      261,
+      689,
+      278
+    ],
+    "page_idx": 13
+  },
+  {
+    "type": "text",
+    "text": "In the RJE framework, the final answer can be produced either during the judgment stage or the exploration stage. Figure 7 illustrates the answer accuracy at each stage using DeepSeek-V3 on two datasets. The label First denotes answers generated during the judgment stage, while Second indicates those generated during the exploration stage.",
+    "bbox": [
+      507,
+      290,
+      885,
+      403
+    ],
+    "page_idx": 13
+  },
+  {
+    "type": "text",
+    "text": "For WebQSP, 77.7% of the questions are correctly answered during the judgment stage, indicating that only a single LLM call is required. This demonstrates the efficiency of RJE in producing accurate answers with minimal computational cost when the path information is sufficient. Among the remaining 19.7% of cases where the initial paths are insufficient, 14.7% of the questions are still answered correctly during the subsequent exploration stage. These findings demonstrate the capacity of RJE to recognize insufficient information and retrieve additional knowledge through exploration, eventually leading to the correct answer.",
+    "bbox": [
+      507,
+      404,
+      887,
+      613
+    ],
+    "page_idx": 13
+  },
+  {
+    "type": "text",
+    "text": "For CWQ, which is generally more complex than WebQSP, approximately half of the questions are answered during the judgment stage. This outcome reflects the ability of RJE to adapt its strategy according to the complexity of the question. Notably, 35.6% of the questions are correctly answered during the exploration stage, demonstrating the potential of RJE in handling more challenging questions by exploring beyond the initially retrieved paths.",
+    "bbox": [
+      507,
+      614,
+      887,
+      762
+    ],
+    "page_idx": 13
+  },
+  {
+    "type": "text",
+    "text": "G Case Study",
+    "text_level": 2,
+    "bbox": [
+      509,
+      774,
+      648,
+      791
+    ],
+    "page_idx": 13
+  },
+  {
+    "type": "text",
+    "text": "G.1 Case 1",
+    "text_level": 2,
+    "bbox": [
+      509,
+      802,
+      615,
+      818
+    ],
+    "page_idx": 13
+  },
+  {
+    "type": "text",
+    "text": "Figure 8 illustrates a case from CWQ that highlights the advantages of the RJE framework. For the question “What David Slade film starred Taylor Lautner?”, RJE first retrieves and refines five highly relevant paths. After performing judgment on these paths, RJE identifies that while some of the paths indicate movies involving “Taylor Lautner” and one indicates a movie directed by “David Slade”, there is no overlapping entity between them that can support valid reasoning. Therefore, RJE judges that the path information is insufficient and triggers further exploration.",
+    "bbox": [
+      507,
+      825,
+      887,
+      923
+    ],
+    "page_idx": 13
+  },
+  {
+    "type": "chart",
+    "img_path": "images/a9eab524b047d30a0f94827ec6f173facef0311e128514e7428e3cf77e3741e0.jpg",
+    "content": "",
+    "chart_caption": [],
+    "chart_footnote": [],
+    "bbox": [
+      137,
+      90,
+      462,
+      193
+    ],
+    "page_idx": 14
+  },
+  {
+    "type": "chart",
+    "img_path": "images/eece87aeced94763028ed27baeab6dda19725ea1501d61da4bc3fa3a94832d62.jpg",
+    "content": "",
+    "chart_caption": [
+      "(a) WebQSP",
+      "(b) CWQ",
+      "Figure 7: Answer accuracy at different stages in the RJE framework on WebQSP and CWQ."
+    ],
+    "chart_footnote": [],
+    "bbox": [
+      137,
+      217,
+      462,
+      325
+    ],
+    "page_idx": 14
+  },
+  {
+    "type": "text",
+    "text": "",
+    "bbox": [
+      110,
+      417,
+      489,
+      513
+    ],
+    "page_idx": 14
+  },
+  {
+    "type": "text",
+    "text": "Upon entering the exploration stage, RJE first performs question decomposition based on the topic entities to better facilitate path exploration and reasoning. In the first round of exploration, RJE successfully selects the entities “The Twilight Saga”, “The Twilight Saga: New Moon”, and “David Slade”, aiming to retrieve detailed information about the movie series and its director. After conducting relation and entity exploration, RJE acquires key knowledge: “Eclipse” is part of “The Twilight Saga”, and “David Slade” is its director. By synthesizing this information, RJE is able to accurately infer that the answer to the original question is “Eclipse”.",
+    "bbox": [
+      110,
+      516,
+      490,
+      743
+    ],
+    "page_idx": 14
+  },
+  {
+    "type": "text",
+    "text": "In summary, while three hops would be needed to reach the correct answer theoretically, RJE obtains highly relevant information during the retrieval stage, eliminating the need to start exploration from the topic entity and significantly reducing the number of exploration rounds. This substantially reduces computational cost and inference time. Furthermore, the integration of question decomposition and the retriever-assisted exploration during the exploration process enables RJE to perform path exploration and reasoning more effectively, making it easier to arrive at the correct answer. These strengths contribute to the strong performance of RJE even when using LLMs with relatively small parameter sizes.",
+    "bbox": [
+      110,
+      745,
+      492,
+      923
+    ],
+    "page_idx": 14
+  },
+  {
+    "type": "text",
+    "text": "",
+    "bbox": [
+      507,
+      85,
+      885,
+      149
+    ],
+    "page_idx": 14
+  },
+  {
+    "type": "text",
+    "text": "G.2 Case 2",
+    "text_level": 2,
+    "bbox": [
+      509,
+      162,
+      616,
+      178
+    ],
+    "page_idx": 14
+  },
+  {
+    "type": "text",
+    "text": "Figure 9 presents another case from CWQ that demonstrates the importance of the reasoning path ranker. For the question “What office position was held from March 19, 1790 and was Abraham Lincoln’s political experience?”, without the reasoning path ranker, RJE retrieves the top five paths with the highest relevance scores. However, none of these paths cover the correct answer. As a result, when the LLM analyzes these paths, it is misled by the weakly relevant and noisy information, leading to an incorrect answer during the judgment stage.",
+    "bbox": [
+      507,
+      184,
+      887,
+      363
+    ],
+    "page_idx": 14
+  },
+  {
+    "type": "text",
+    "text": "In contrast, with the reasoning path ranker reordering the paths obtained by the relation path retriever, the paths containing the correct answer are successfully selected and ranked at the top. Upon analyzing the reordered paths, the LLM observes the entity “United States Representative”, and, based on its internal knowledge that the United States Representative office was held from March 19, 1790, it aligns this information with the question and infers the correct answer.",
+    "bbox": [
+      507,
+      363,
+      887,
+      524
+    ],
+    "page_idx": 14
+  },
+  {
+    "type": "text",
+    "text": "In summary, the reasoning path ranker effectively filters and prioritizes the most relevant paths, helping LLMs reduce hallucinations and enhancing the probability of answering correctly during the judgment stage without needing further exploration. This substantially reduces computational cost and inference time. Overall, RJE dynamically adjusts its strategy based on question complexity and path relevance, aiming to find the correct answer while reducing resource consumption.",
+    "bbox": [
+      507,
+      525,
+      887,
+      688
+    ],
+    "page_idx": 14
+  },
+  {
+    "type": "text",
+    "text": "H Analysis of Exploration Round Reduction",
+    "text_level": 2,
+    "bbox": [
+      509,
+      700,
+      818,
+      733
+    ],
+    "page_idx": 14
+  },
+  {
+    "type": "text",
+    "text": "To validate that RJE improves exploration efficiency by starting from entities identified in retrieval paths, we conducted experiments on a subset of CWQ questions that explicitly require exploration. This subset excludes questions that RJE can directly answer during the judgment stage, ensuring all questions necessitate exploration. We compared methods using their default maximum number of rounds: RJE (4 rounds), PoG (4 rounds) and ToG (3 rounds). RJE w/o Retrieval is a variant without retrieval paths that initiates exploration from topic entities rather than retrieval path entities.",
+    "bbox": [
+      507,
+      745,
+      887,
+      923
+    ],
+    "page_idx": 14
+  },
+  {
+    "type": "table",
+    "img_path": "images/69ebc21fd12e64ff552a37ac6bfbc3b642898564c01e9c87508204fe2e898a8e.jpg",
+    "table_caption": [
+      "Figure 8: A typical case demonstrates the advantages of the RJE framework. The topic entities, exploration entities, incorrect answers, and correct answers are highlighted in yellow, blue, red, and green, respectively."
+    ],
+    "table_footnote": [],
+    "bbox": [
+      115,
+      104,
+      880,
+      429
+    ],
+    "page_idx": 15
+  },
+  {
+    "type": "table",
+    "img_path": "images/16dc0c94f84150f48ab398ce36612985360b815746eba0adde17c738d8a317b2.jpg",
+    "table_caption": [
+      "Figure 9: A typical case illustrates the importance of the reasoning path ranker. With and without the ranker, the LLM infers different answers. The incorrect and correct answers are highlighted in red and green, respectively."
+    ],
+    "table_footnote": [],
+    "bbox": [
+      115,
+      524,
+      878,
+      853
+    ],
+    "page_idx": 15
+  },
+  {
+    "type": "table",
+    "img_path": "images/6d640a2ab70571e3e81322898f289c2d3036282f44a00229ba73b4e16404d346.jpg",
+    "table_caption": [
+      "Table 7: Average number of exploration rounds required by different methods on CWQ subset."
+    ],
+    "table_footnote": [],
+    "bbox": [
+      121,
+      83,
+      480,
+      117
+    ],
+    "page_idx": 16
+  },
+  {
+    "type": "table",
+    "img_path": "images/7b7fca28db0c327e638c27fa5072d4b9ac3a1ac919a5147b6c90e8dfe91a41d2.jpg",
+    "table_caption": [
+      "Table 8: RJE performance on questions with different numbers of hops using DeepSeek-V3."
+    ],
+    "table_footnote": [],
+    "bbox": [
+      132,
+      173,
+      468,
+      219
+    ],
+    "page_idx": 16
+  },
+  {
+    "type": "text",
+    "text": "",
+    "bbox": [
+      112,
+      286,
+      489,
+      317
+    ],
+    "page_idx": 16
+  },
+  {
+    "type": "text",
+    "text": "As shown in Table 7, RJE achieves the lowest average number of rounds (1.57), substantially outperforming RJE w/o Retrieval (2.41 rounds) by 35%. This indicates that starting exploration from retrieval path entities effectively reduces exploration rounds. RJE also outperforms PoG (2.36 rounds) and ToG (2.58 rounds), highlighting the computational efficiency of the RJE framework.",
+    "bbox": [
+      112,
+      318,
+      490,
+      449
+    ],
+    "page_idx": 16
+  },
+  {
+    "type": "text",
+    "text": "I Performance on Different Hops",
+    "text_level": 2,
+    "bbox": [
+      114,
+      460,
+      418,
+      476
+    ],
+    "page_idx": 16
+  },
+  {
+    "type": "text",
+    "text": "To evaluate RJE’s performance across questions of varying complexity, we analyze results by hop count on the CWQ dataset. For each question, the hop count is defined as the longest of the shortest paths from topic entities to the answer entity in the provided SPARQL queries.",
+    "bbox": [
+      112,
+      486,
+      489,
+      582
+    ],
+    "page_idx": 16
+  },
+  {
+    "type": "text",
+    "text": "As shown in Table 8, RJE maintains consistent performance across different hop requirements, achieving Hits@1 scores of 69.9%-81.5%. This consistency highlights RJE’s effectiveness on multihop reasoning, attributed to its systematic threestage architecture that mitigates the difficulty of multi-hop questions.",
+    "bbox": [
+      112,
+      583,
+      492,
+      696
+    ],
+    "page_idx": 16
+  },
+  {
+    "type": "text",
+    "text": "J Prompts",
+    "text_level": 2,
+    "bbox": [
+      114,
+      707,
+      225,
+      725
+    ],
+    "page_idx": 16
+  },
+  {
+    "type": "text",
+    "text": "J.1 Judgment",
+    "text_level": 2,
+    "bbox": [
+      114,
+      733,
+      240,
+      750
+    ],
+    "page_idx": 16
+  },
+  {
+    "type": "text",
+    "text": "Your task is to infer the answer based on the given question and given triple paths.",
+    "bbox": [
+      139,
+      763,
+      462,
+      796
+    ],
+    "page_idx": 16
+  },
+  {
+    "type": "text",
+    "text": "{In-Context Few-shot}",
+    "bbox": [
+      141,
+      796,
+      310,
+      810
+    ],
+    "page_idx": 16
+  },
+  {
+    "type": "text",
+    "text": "Task Requirements:",
+    "bbox": [
+      141,
+      812,
+      292,
+      827
+    ],
+    "page_idx": 16
+  },
+  {
+    "type": "text",
+    "text": "1. Do not provide explanations or extra text.",
+    "bbox": [
+      139,
+      827,
+      463,
+      844
+    ],
+    "page_idx": 16
+  },
+  {
+    "type": "text",
+    "text": "2. The output must be in strict JSON format.",
+    "bbox": [
+      139,
+      844,
+      463,
+      859
+    ],
+    "page_idx": 16
+  },
+  {
+    "type": "text",
+    "text": "Now, based on the following input, determine whether the question can be answered. Question:",
+    "bbox": [
+      139,
+      859,
+      465,
+      908
+    ],
+    "page_idx": 16
+  },
+  {
+    "type": "text",
+    "text": "J.2 Question Decomposition",
+    "text_level": 2,
+    "bbox": [
+      509,
+      128,
+      749,
+      145
+    ],
+    "page_idx": 16
+  },
+  {
+    "type": "text",
+    "text": "You are an expert in question decomposition and knowledge-based reasoning.",
+    "bbox": [
+      534,
+      159,
+      858,
+      192
+    ],
+    "page_idx": 16
+  },
+  {
+    "type": "text",
+    "text": "Given:",
+    "bbox": [
+      536,
+      192,
+      593,
+      206
+    ],
+    "page_idx": 16
+  },
+  {
+    "type": "text",
+    "text": "\\- A complex natural language question.",
+    "bbox": [
+      532,
+      208,
+      828,
+      224
+    ],
+    "page_idx": 16
+  },
+  {
+    "type": "text",
+    "text": "\\- A list of topic entities mentioned in the question.",
+    "bbox": [
+      532,
+      224,
+      857,
+      255
+    ],
+    "page_idx": 16
+  },
+  {
+    "type": "text",
+    "text": "Your tasks are: Generate a sub-question for each entity. The sub-question should reflect the original question’s intent, but be scoped only to that specific entity.",
+    "bbox": [
+      534,
+      256,
+      858,
+      321
+    ],
+    "page_idx": 16
+  },
+  {
+    "type": "text",
+    "text": "{In-Context Few-shot}",
+    "bbox": [
+      534,
+      321,
+      707,
+      337
+    ],
+    "page_idx": 16
+  },
+  {
+    "type": "text",
+    "text": "Original Question:",
+    "bbox": [
+      536,
+      336,
+      680,
+      353
+    ],
+    "page_idx": 16
+  },
+  {
+    "type": "text",
+    "text": "Topic Entities:",
+    "bbox": [
+      536,
+      353,
+      650,
+      369
+    ],
+    "page_idx": 16
+  },
+  {
+    "type": "text",
+    "text": "J.3 Exploration Entities Selection",
+    "text_level": 2,
+    "bbox": [
+      509,
+      391,
+      791,
+      407
+    ],
+    "page_idx": 16
+  },
+  {
+    "type": "text",
+    "text": "Your task is to determine which entities should be explored next, based on the Original Question, Topic Question and given triple paths.",
+    "bbox": [
+      534,
+      422,
+      858,
+      487
+    ],
+    "page_idx": 16
+  },
+  {
+    "type": "text",
+    "text": "{In-Context Few-shot}",
+    "bbox": [
+      534,
+      487,
+      707,
+      502
+    ],
+    "page_idx": 16
+  },
+  {
+    "type": "text",
+    "text": "Now you need to output the entities from the Entity List, without additional explanations or formatting. Strictly follow the entity names as they appear in the Entity List.",
+    "bbox": [
+      534,
+      504,
+      858,
+      583
+    ],
+    "page_idx": 16
+  },
+  {
+    "type": "text",
+    "text": "Note: Only include entities that are necessary for answering the Original Question, and ensure the list has no more than 10 entities.",
+    "bbox": [
+      534,
+      583,
+      860,
+      648
+    ],
+    "page_idx": 16
+  },
+  {
+    "type": "text",
+    "text": "Original Question:",
+    "bbox": [
+      536,
+      648,
+      680,
+      664
+    ],
+    "page_idx": 16
+  },
+  {
+    "type": "text",
+    "text": "Topic 1:",
+    "bbox": [
+      536,
+      664,
+      601,
+      680
+    ],
+    "page_idx": 16
+  },
+  {
+    "type": "text",
+    "text": "Topic Question:",
+    "bbox": [
+      536,
+      681,
+      658,
+      696
+    ],
+    "page_idx": 16
+  },
+  {
+    "type": "text",
+    "text": "Topic Entity:",
+    "bbox": [
+      536,
+      696,
+      638,
+      713
+    ],
+    "page_idx": 16
+  },
+  {
+    "type": "text",
+    "text": "Triplets:",
+    "bbox": [
+      536,
+      713,
+      603,
+      728
+    ],
+    "page_idx": 16
+  },
+  {
+    "type": "text",
+    "text": "Topic 2:",
+    "bbox": [
+      536,
+      728,
+      601,
+      745
+    ],
+    "page_idx": 16
+  },
+  {
+    "type": "text",
+    "text": "J.4 Relation Exploration",
+    "text_level": 2,
+    "bbox": [
+      510,
+      781,
+      721,
+      797
+    ],
+    "page_idx": 16
+  },
+  {
+    "type": "text",
+    "text": "Your task is to select useful relations from a given list based on the current question and connected entity.",
+    "bbox": [
+      534,
+      810,
+      857,
+      858
+    ],
+    "page_idx": 16
+  },
+  {
+    "type": "text",
+    "text": "{In-Context Few-shot}",
+    "bbox": [
+      534,
+      859,
+      707,
+      875
+    ],
+    "page_idx": 16
+  },
+  {
+    "type": "text",
+    "text": "Task Requirements:",
+    "bbox": [
+      536,
+      876,
+      689,
+      891
+    ],
+    "page_idx": 16
+  },
+  {
+    "type": "text",
+    "text": "1. Strictly output only the selected relations",
+    "bbox": [
+      536,
+      891,
+      857,
+      908
+    ],
+    "page_idx": 16
+  },
+  {
+    "type": "text",
+    "text": "from the provided list.",
+    "bbox": [
+      141,
+      91,
+      310,
+      108
+    ],
+    "page_idx": 17
+  },
+  {
+    "type": "text",
+    "text": "2. Do not include any additional relations, explanations, reasoning, or extra formatting.",
+    "bbox": [
+      139,
+      108,
+      462,
+      156
+    ],
+    "page_idx": 17
+  },
+  {
+    "type": "text",
+    "text": "Now, based on the following input, select the useful relations.",
+    "bbox": [
+      139,
+      156,
+      460,
+      189
+    ],
+    "page_idx": 17
+  },
+  {
+    "type": "text",
+    "text": "J.5 Entity Exploration",
+    "text_level": 2,
+    "bbox": [
+      114,
+      258,
+      309,
+      275
+    ],
+    "page_idx": 17
+  },
+  {
+    "type": "text",
+    "text": "1. Entities must come strictly from the given list; do not introduce new entities.",
+    "bbox": [
+      139,
+      355,
+      462,
+      387
+    ],
+    "page_idx": 17
+  },
+  {
+    "type": "text",
+    "text": "2. Strictly output only the selected entities, without explanations or additional formatting.",
+    "bbox": [
+      139,
+      387,
+      463,
+      435
+    ],
+    "page_idx": 17
+  },
+  {
+    "type": "text",
+    "text": "Now, based on the following input, select the minimal relevant entities.",
+    "bbox": [
+      139,
+      435,
+      462,
+      468
+    ],
+    "page_idx": 17
+  },
+  {
+    "type": "text",
+    "text": "Question:",
+    "bbox": [
+      141,
+      468,
+      218,
+      483
+    ],
+    "page_idx": 17
+  },
+  {
+    "type": "text",
+    "text": "Triplets:",
+    "bbox": [
+      141,
+      483,
+      208,
+      500
+    ],
+    "page_idx": 17
+  },
+  {
+    "type": "text",
+    "text": "J.6 Answer Generation",
+    "text_level": 2,
+    "bbox": [
+      114,
+      523,
+      314,
+      539
+    ],
+    "page_idx": 17
+  },
+  {
+    "type": "text",
+    "text": "Your task is to infer the answer to the original question by first reasoning over each Topic Question using the provided triplets and your knowledge, then combining the insights from all Topic Questions to derive the final answer.",
+    "bbox": [
+      139,
+      552,
+      463,
+      650
+    ],
+    "page_idx": 17
+  },
+  {
+    "type": "text",
+    "text": "Instructions:",
+    "bbox": [
+      141,
+      650,
+      238,
+      665
+    ],
+    "page_idx": 17
+  },
+  {
+    "type": "text",
+    "text": "1. For each topic entity:",
+    "bbox": [
+      141,
+      665,
+      321,
+      682
+    ],
+    "page_idx": 17
+  },
+  {
+    "type": "text",
+    "text": "\\- Read its corresponding topic question.",
+    "bbox": [
+      139,
+      682,
+      435,
+      699
+    ],
+    "page_idx": 17
+  },
+  {
+    "type": "text",
+    "text": "\\- Use the associated triplets and your knowledge to infer an answer.",
+    "bbox": [
+      137,
+      697,
+      463,
+      730
+    ],
+    "page_idx": 17
+  },
+  {
+    "type": "text",
+    "text": "2. After processing all topic entities:",
+    "bbox": [
+      141,
+      730,
+      415,
+      746
+    ],
+    "page_idx": 17
+  },
+  {
+    "type": "text",
+    "text": "\\- Analyze how the individual answers relate to the original question.",
+    "bbox": [
+      137,
+      746,
+      460,
+      778
+    ],
+    "page_idx": 17
+  },
+  {
+    "type": "text",
+    "text": "\\- If possible, synthesize them to derive the final answer.",
+    "bbox": [
+      137,
+      778,
+      460,
+      809
+    ],
+    "page_idx": 17
+  },
+  {
+    "type": "text",
+    "text": "Task Requirements:",
+    "bbox": [
+      141,
+      827,
+      292,
+      843
+    ],
+    "page_idx": 17
+  },
+  {
+    "type": "text",
+    "text": "1. Do not provide explanations or extra text.",
+    "bbox": [
+      141,
+      843,
+      463,
+      859
+    ],
+    "page_idx": 17
+  },
+  {
+    "type": "text",
+    "text": "2. The output must be in strict JSON format. Now, based on the following input, determine whether the question can be answered.",
+    "bbox": [
+      141,
+      859,
+      463,
+      909
+    ],
+    "page_idx": 17
+  },
+  {
+    "type": "code",
+    "sub_type": "algorithm",
+    "code_caption": [],
+    "code_footnote": [],
+    "code_body": "Original Question:   \nTopic 1:   \nTopic Question:   \nTopic Entity:   \nTriplets:   \nTopic 2:",
+    "bbox": [
+      534,
+      90,
+      680,
+      206
+    ],
+    "page_idx": 17
+  },
+  {
+    "type": "text",
+    "text": "K SPARQL",
+    "text_level": 2,
+    "bbox": [
+      510,
+      221,
+      631,
+      240
+    ],
+    "page_idx": 17
+  },
+  {
+    "type": "text",
+    "text": "K.1 Relation Search",
+    "text_level": 2,
+    "bbox": [
+      510,
+      248,
+      685,
+      265
+    ],
+    "page_idx": 17
+  },
+  {
+    "type": "code",
+    "sub_type": "algorithm",
+    "code_caption": [],
+    "code_footnote": [],
+    "code_body": "PREFIX ns: <http://rdf.freebase.com/ns/>   \nSELECT DISTINCT ?relation   \nWHERE {   \nns:%s ?relation ?x .   \nFILTER (?x != ns:%s)   \n}",
+    "bbox": [
+      534,
+      274,
+      850,
+      376
+    ],
+    "page_idx": 17
+  },
+  {
+    "type": "code",
+    "sub_type": "algorithm",
+    "code_caption": [],
+    "code_footnote": [],
+    "code_body": "PREFIX ns: <http://rdf.freebase.com/ns/>   \nSELECT DISTINCT ?relation   \nWHERE {   \n?x ?relation ns:%s .   \nFILTER (?x != ns:%s)   \n}",
+    "bbox": [
+      536,
+      398,
+      850,
+      502
+    ],
+    "page_idx": 17
+  },
+  {
+    "type": "text",
+    "text": "K.2 Entity Search",
+    "text_level": 2,
+    "bbox": [
+      510,
+      516,
+      668,
+      532
+    ],
+    "page_idx": 17
+  },
+  {
+    "type": "code",
+    "sub_type": "algorithm",
+    "code_caption": [],
+    "code_footnote": [],
+    "code_body": "PREFIX ns: <http://rdf.freebase.com/ns/>   \nSELECT ?tailEntity   \nWHERE {   \nns:%s ns:%s ?tailEntity .   \n}",
+    "bbox": [
+      534,
+      545,
+      850,
+      632
+    ],
+    "page_idx": 17
+  },
+  {
+    "type": "code",
+    "sub_type": "algorithm",
+    "code_caption": [],
+    "code_footnote": [],
+    "code_body": "PREFIX ns: <http://rdf.freebase.com/ns/>   \nSELECT ?tailEntity   \nWHERE {   \n?tailEntity ns:%s ns:%s .   \n}",
+    "bbox": [
+      536,
+      652,
+      850,
+      738
+    ],
+    "page_idx": 17
+  }
+]

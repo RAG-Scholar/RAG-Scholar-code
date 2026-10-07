@@ -1,0 +1,237 @@
+[
+  {
+    "id": "shared_author",
+    "query": "Which papers are authored by Qi Song?",
+    "expected_papers": [
+      "rje",
+      "sentgraph"
+    ]
+  },
+  {
+    "id": "shared_method",
+    "query": "Which papers use retrieval-augmented generation?",
+    "expected_papers": [
+      "g_retriever",
+      "sentgraph"
+    ]
+  },
+  {
+    "id": "shared_dataset",
+    "query": "Which papers use the WebQSP dataset?",
+    "expected_papers": [
+      "g_retriever",
+      "rje"
+    ]
+  },
+  {
+    "id": "cross_paper",
+    "query": "How do RJE and G-Retriever differ in using retrieved graph evidence to answer a question, particularly RJE's judgment and exploration stages versus G-Retriever's subgraph construction?",
+    "expected_papers": [
+      "g_retriever",
+      "rje"
+    ],
+    "expected_evidence": [
+      {
+        "paper_id": "rje",
+        "description": "Sufficiency judgment determines whether further exploration is needed.",
+        "all_of": [
+          [
+            "sufficient"
+          ],
+          [
+            "exploration",
+            "explore"
+          ],
+          [
+            "if",
+            "when"
+          ]
+        ]
+      },
+      {
+        "paper_id": "g_retriever",
+        "description": "Subgraph construction uses the PCST objective.",
+        "all_of": [
+          [
+            "pcst",
+            "prize-collecting steiner tree"
+          ],
+          [
+            "subgraph"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "figure",
+    "query": "Explain how G-Retriever's Figure 3 turns a retrieved subgraph into an answer through the graph encoder, projection layer, and graph prompt.",
+    "expected_papers": [
+      "g_retriever"
+    ],
+    "expected_evidence": [
+      {
+        "paper_id": "g_retriever",
+        "description": "A projection aligns graph representations with the language-model embedding space.",
+        "all_of": [
+          [
+            "graph encoder"
+          ],
+          [
+            "projection"
+          ],
+          [
+            "align"
+          ]
+        ]
+      },
+      {
+        "paper_id": "g_retriever",
+        "description": "The graph representation is used as a soft prompt for the LLM.",
+        "all_of": [
+          [
+            "soft prompt"
+          ],
+          [
+            "llm",
+            "language model"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rje_decision",
+    "query": "Explain how RJE determines whether retrieved evidence is sufficient and decides to explore further.",
+    "expected_papers": [
+      "rje"
+    ],
+    "expected_evidence": [
+      {
+        "paper_id": "rje",
+        "description": "The judgment stage answers when evidence is sufficient and otherwise triggers exploration.",
+        "all_of": [
+          [
+            "judgment"
+          ],
+          [
+            "sufficient"
+          ],
+          [
+            "exploration"
+          ],
+          [
+            "if",
+            "when"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "graph_size",
+    "query": "How does G-Retriever use the Prize-Collecting Steiner Tree objective to control the size of a retrieved subgraph?",
+    "expected_papers": [
+      "g_retriever"
+    ],
+    "expected_evidence": [
+      {
+        "paper_id": "g_retriever",
+        "description": "PCST balances prizes and edge costs; adjustable edge cost controls subgraph size.",
+        "all_of": [
+          [
+            "pcst",
+            "prize-collecting steiner tree"
+          ],
+          [
+            "prize",
+            "prizes"
+          ],
+          [
+            "cost",
+            "costs"
+          ],
+          [
+            "adjustable"
+          ],
+          [
+            "subgraph"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "projection_role",
+    "query": "What does the projection layer do between G-Retriever's graph encoder and the language model?",
+    "expected_papers": [
+      "g_retriever"
+    ],
+    "expected_evidence": [
+      {
+        "paper_id": "g_retriever",
+        "description": "An MLP projection aligns the graph token with the LLM embedding space.",
+        "all_of": [
+          [
+            "projection"
+          ],
+          [
+            "mlp",
+            "multilayer perceptron"
+          ],
+          [
+            "align"
+          ],
+          [
+            "graph token"
+          ],
+          [
+            "llm"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "compare_paths_sentences",
+    "query": "Compare RJE and SentGraph in how they organize evidence for multi-hop reasoning.",
+    "expected_papers": [
+      "rje",
+      "sentgraph"
+    ],
+    "expected_evidence": [
+      {
+        "paper_id": "rje",
+        "description": "RJE organizes retrieved evidence as reasoning paths and uses sufficiency judgment and exploration.",
+        "all_of": [
+          [
+            "reasoning path",
+            "reasoning paths"
+          ],
+          [
+            "sufficient"
+          ],
+          [
+            "exploration"
+          ]
+        ]
+      },
+      {
+        "paper_id": "sentgraph",
+        "description": "SentGraph organizes sentence-level logical dependencies for graph-based evidence retrieval.",
+        "all_of": [
+          [
+            "sentence-level"
+          ],
+          [
+            "logical dependencies",
+            "logic graph"
+          ],
+          [
+            "retrieval"
+          ]
+        ]
+      }
+    ]
+  }
+]

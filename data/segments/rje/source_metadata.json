@@ -1,0 +1,21 @@
+{
+  "title": "RJE: A Retrieval-Judgment-Exploration Framework for Efficient Knowledge Graph Question Answering with LLMs",
+  "authors": [
+    "Can Lin",
+    "Zhengwang Jiang",
+    "Ling Zheng",
+    "Qi Zhao",
+    "Yuhang Zhang",
+    "Qi Song",
+    "Wangqiu Zhou"
+  ],
+  "year": 2025,
+  "source_record_id": "2510.01257v1",
+  "source_url": "http://arxiv.org/abs/2510.01257v1",
+  "pdf_url": "https://arxiv.org/pdf/2510.01257v1",
+  "paper_id": "rje",
+  "pdf": "data/pdfs/rje.pdf",
+  "segments": "data/segments/rje",
+  "parsing": "Bundled original MinerU content_list and figure crops; no live parser required.",
+  "metadata_source": "Existing arXiv collection metadata, checked against PDF first page."
+}

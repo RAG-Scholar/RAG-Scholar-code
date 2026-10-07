@@ -1,0 +1,22 @@
+{
+  "title": "SentGraph: Hierarchical Sentence Graph for Multi-hop Retrieval-Augmented Question Answering",
+  "authors": [
+    "Junli Liang",
+    "Pengfei Zhou",
+    "Wangqiu Zhou",
+    "Wenjie Qing",
+    "Qi Zhao",
+    "Ziwen Wang",
+    "Qi Song",
+    "Xiangyang Li"
+  ],
+  "year": 2026,
+  "source_record_id": "2601.03014v3",
+  "source_url": "http://arxiv.org/abs/2601.03014v3",
+  "pdf_url": "https://arxiv.org/pdf/2601.03014v3",
+  "paper_id": "sentgraph",
+  "pdf": "data/pdfs/sentgraph.pdf",
+  "segments": "data/segments/sentgraph",
+  "parsing": "Bundled original MinerU content_list and figure crops; no live parser required.",
+  "metadata_source": "Existing arXiv collection metadata, checked against PDF first page."
+}

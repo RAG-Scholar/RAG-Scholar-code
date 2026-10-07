@@ -1,0 +1,67 @@
+[
+  {
+    "title": "G-Retriever: Retrieval-Augmented Generation for Textual Graph Understanding and Question Answering",
+    "authors": [
+      "Xiaoxin He",
+      "Yijun Tian",
+      "Yifei Sun",
+      "Nitesh V. Chawla",
+      "Thomas Laurent",
+      "Yann LeCun",
+      "Xavier Bresson",
+      "Bryan Hooi"
+    ],
+    "year": 2024,
+    "source_record_id": "2402.07630v3",
+    "source_url": "http://arxiv.org/abs/2402.07630v3",
+    "pdf_url": "https://arxiv.org/pdf/2402.07630v3",
+    "paper_id": "g_retriever",
+    "pdf": "data/pdfs/g_retriever.pdf",
+    "segments": "data/segments/g_retriever",
+    "parsing": "Bundled original MinerU content_list and figure crops; no live parser required.",
+    "metadata_source": "Existing arXiv collection metadata, checked against PDF first page."
+  },
+  {
+    "title": "RJE: A Retrieval-Judgment-Exploration Framework for Efficient Knowledge Graph Question Answering with LLMs",
+    "authors": [
+      "Can Lin",
+      "Zhengwang Jiang",
+      "Ling Zheng",
+      "Qi Zhao",
+      "Yuhang Zhang",
+      "Qi Song",
+      "Wangqiu Zhou"
+    ],
+    "year": 2025,
+    "source_record_id": "2510.01257v1",
+    "source_url": "http://arxiv.org/abs/2510.01257v1",
+    "pdf_url": "https://arxiv.org/pdf/2510.01257v1",
+    "paper_id": "rje",
+    "pdf": "data/pdfs/rje.pdf",
+    "segments": "data/segments/rje",
+    "parsing": "Bundled original MinerU content_list and figure crops; no live parser required.",
+    "metadata_source": "Existing arXiv collection metadata, checked against PDF first page."
+  },
+  {
+    "title": "SentGraph: Hierarchical Sentence Graph for Multi-hop Retrieval-Augmented Question Answering",
+    "authors": [
+      "Junli Liang",
+      "Pengfei Zhou",
+      "Wangqiu Zhou",
+      "Wenjie Qing",
+      "Qi Zhao",
+      "Ziwen Wang",
+      "Qi Song",
+      "Xiangyang Li"
+    ],
+    "year": 2026,
+    "source_record_id": "2601.03014v3",
+    "source_url": "http://arxiv.org/abs/2601.03014v3",
+    "pdf_url": "https://arxiv.org/pdf/2601.03014v3",
+    "paper_id": "sentgraph",
+    "pdf": "data/pdfs/sentgraph.pdf",
+    "segments": "data/segments/sentgraph",
+    "parsing": "Bundled original MinerU content_list and figure crops; no live parser required.",
+    "metadata_source": "Existing arXiv collection metadata, checked against PDF first page."
+  }
+]

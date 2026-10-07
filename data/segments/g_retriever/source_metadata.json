@@ -1,0 +1,22 @@
+{
+  "title": "G-Retriever: Retrieval-Augmented Generation for Textual Graph Understanding and Question Answering",
+  "authors": [
+    "Xiaoxin He",
+    "Yijun Tian",
+    "Yifei Sun",
+    "Nitesh V. Chawla",
+    "Thomas Laurent",
+    "Yann LeCun",
+    "Xavier Bresson",
+    "Bryan Hooi"
+  ],
+  "year": 2024,
+  "source_record_id": "2402.07630v3",
+  "source_url": "http://arxiv.org/abs/2402.07630v3",
+  "pdf_url": "https://arxiv.org/pdf/2402.07630v3",
+  "paper_id": "g_retriever",
+  "pdf": "data/pdfs/g_retriever.pdf",
+  "segments": "data/segments/g_retriever",
+  "parsing": "Bundled original MinerU content_list and figure crops; no live parser required.",
+  "metadata_source": "Existing arXiv collection metadata, checked against PDF first page."
+}
